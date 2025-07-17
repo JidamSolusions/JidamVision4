@@ -7,6 +7,20 @@ using System.Windows.Forms;
 namespace JidamVision4
 {
     /*
+    #1_BASE FRAME
+    #2_DOCKPANEL
+    #3_CAMERAVIEW_PROPERTY
+    #4_IMAGE_VIEWER
+    #5 CAMERA INTERFACE & MAIN TOOLBAR
+    #6 BINAARY PREVIEW & FILTER
+    #7 TEACHING ROI
+    #8 SAVE MODEL & SETUP DIALOG
+    #9 PATTERN MATCHING
+    #10 AUTO RUN
+    #11 WCF & FSM
+    */
+
+    /*
     #1_BASE FRAME# - <<<최초 프로젝트 생성 후, 기본 프레임 생성>>> 
     3개의 Form을 생성하고, DockPanel을 통해 기본 프레임을 구성
     1) MainForm WindowForm 생성

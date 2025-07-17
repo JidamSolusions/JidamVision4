@@ -28,47 +28,42 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.picMainview = new System.Windows.Forms.PictureBox();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picMainview)).BeginInit();
+            this.imageViewCtrl1 = new JidamVision4.UIControl.ImageViewCtrl();
+            this.imageViewer = new JidamVision4.UIControl.ImageViewCtrl();
             this.SuspendLayout();
             // 
-            // panel1
+            // imageViewCtrl1
             // 
-            this.panel1.Controls.Add(this.picMainview);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(800, 450);
-            this.panel1.TabIndex = 0;
+            this.imageViewCtrl1.Location = new System.Drawing.Point(0, 0);
+            this.imageViewCtrl1.Name = "imageViewCtrl1";
+            this.imageViewCtrl1.Size = new System.Drawing.Size(150, 150);
+            this.imageViewCtrl1.TabIndex = 0;
             // 
-            // picMainview
+            // imageViewer
             // 
-            this.picMainview.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.picMainview.Location = new System.Drawing.Point(0, 0);
-            this.picMainview.Name = "picMainview";
-            this.picMainview.Size = new System.Drawing.Size(800, 450);
-            this.picMainview.TabIndex = 0;
-            this.picMainview.TabStop = false;
+            this.imageViewer.Dock = System.Windows.Forms.DockStyle.Left;
+            this.imageViewer.Location = new System.Drawing.Point(0, 0);
+            this.imageViewer.Name = "imageViewer";
+            this.imageViewer.Size = new System.Drawing.Size(546, 562);
+            this.imageViewer.TabIndex = 1;
             // 
             // CameraForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.panel1);
+            this.ClientSize = new System.Drawing.Size(914, 562);
+            this.Controls.Add(this.imageViewer);
+            this.Controls.Add(this.imageViewCtrl1);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "CameraForm";
             this.Text = "CameraForm";
-            this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picMainview)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.PictureBox picMainview;
+        private UIControl.ImageViewCtrl imageViewCtrl1;
+        private UIControl.ImageViewCtrl imageViewer;
     }
 }

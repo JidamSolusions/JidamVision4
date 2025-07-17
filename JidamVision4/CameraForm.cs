@@ -28,7 +28,10 @@ namespace JidamVision4
             if (File.Exists(filePath) == false)
                 return;
 
-            picMainview.Image = Image.FromFile(filePath);
+            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
+            //picMainview.Image = Image.FromFile(filePath);
+            Image bitmap = Image.FromFile(filePath);
+            imageViewer.LoadBitmap((Bitmap)bitmap);
         }
     }
 }

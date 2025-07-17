@@ -33,20 +33,22 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(168, 19);
+            this.button1.Location = new System.Drawing.Point(33, 32);
+            this.button1.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(98, 28);
+            this.button1.Size = new System.Drawing.Size(112, 35);
             this.button1.TabIndex = 0;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
             // 
             // BinaryProp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.button1);
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(313, 207);
+            this.Size = new System.Drawing.Size(358, 259);
             this.Load += new System.EventHandler(this.BinaryProp_Load);
             this.ResumeLayout(false);
 
