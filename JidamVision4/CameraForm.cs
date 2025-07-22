@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JidamVision4.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -33,5 +34,22 @@ namespace JidamVision4
             Image bitmap = Image.FromFile(filePath);
             imageViewer.LoadBitmap((Bitmap)bitmap);
         }
+
+        public void UpdateDisplay(Bitmap bitmap = null)
+        {
+            if (imageViewer != null)
+                imageViewer.LoadBitmap(bitmap);
+        }
+
+        public Bitmap GetDisplayImage()
+        {
+            Bitmap curImage = null;
+            
+            if(imageViewer != null)
+                curImage = imageViewer.GetCurBitmap();
+
+            return curImage;
+        }
+
     }
 }
