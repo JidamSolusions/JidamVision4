@@ -262,5 +262,16 @@ namespace JidamVision4.UIControl
                 virtualPos.Y * _curZoom + offset.Y);
         }
         #endregion
+
+        private void ImageViewCtrl_Resize(object sender, EventArgs e)
+        {
+            ResizeCanvas();
+            Invalidate();
+        }
+
+        private void ImageViewCtrl_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            FitImageToScreen();
+        }
     }
 }
