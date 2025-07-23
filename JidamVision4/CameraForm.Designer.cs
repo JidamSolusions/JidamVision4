@@ -29,25 +29,16 @@
         private void InitializeComponent()
         {
             this.imageViewer = new JidamVision4.UIControl.ImageViewCtrl();
-            this.imageViewCtrl1 = new JidamVision4.UIControl.ImageViewCtrl();
             this.SuspendLayout();
             // 
             // imageViewer
             // 
-            this.imageViewer.Dock = System.Windows.Forms.DockStyle.Left;
+            this.imageViewer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageViewer.Location = new System.Drawing.Point(0, 0);
             this.imageViewer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.imageViewer.Name = "imageViewer";
-            this.imageViewer.Size = new System.Drawing.Size(478, 450);
+            this.imageViewer.Size = new System.Drawing.Size(800, 450);
             this.imageViewer.TabIndex = 1;
-            // 
-            // imageViewCtrl1
-            // 
-            this.imageViewCtrl1.Location = new System.Drawing.Point(0, 0);
-            this.imageViewCtrl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.imageViewCtrl1.Name = "imageViewCtrl1";
-            this.imageViewCtrl1.Size = new System.Drawing.Size(131, 120);
-            this.imageViewCtrl1.TabIndex = 0;
             // 
             // CameraForm
             // 
@@ -55,7 +46,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.imageViewer);
-            this.Controls.Add(this.imageViewCtrl1);
             this.Name = "CameraForm";
             this.Text = "CameraForm";
             this.Resize += new System.EventHandler(this.CameraForm_Resize);
@@ -64,8 +54,6 @@
         }
 
         #endregion
-
-        private UIControl.ImageViewCtrl imageViewCtrl1;
         private UIControl.ImageViewCtrl imageViewer;
     }
 }
