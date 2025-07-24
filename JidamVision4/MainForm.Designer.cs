@@ -57,14 +57,14 @@
             // imageOpenToolStripMenuItem
             // 
             this.imageOpenToolStripMenuItem.Name = "imageOpenToolStripMenuItem";
-            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.imageOpenToolStripMenuItem.Text = "Image Open";
             this.imageOpenToolStripMenuItem.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
             // imageSaveToolStripMenuItem
             // 
             this.imageSaveToolStripMenuItem.Name = "imageSaveToolStripMenuItem";
-            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.imageSaveToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
             this.imageSaveToolStripMenuItem.Text = "Image Save";
             // 
             // MainForm
@@ -76,6 +76,7 @@
             this.MainMenuStrip = this.mainMenu;
             this.Name = "MainForm";
             this.Text = "MainForm";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.mainMenu.ResumeLayout(false);
             this.mainMenu.PerformLayout();
             this.ResumeLayout(false);

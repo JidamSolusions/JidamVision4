@@ -89,7 +89,6 @@ namespace JidamVision4.Core
             public Mat ToMat()
             {
                 MatType matType = PixelBpp == 8 ? MatType.CV_8UC1 : MatType.CV_8UC3;
-                //Mat mat = new Mat(Height, Width, matType, ImageData);
                 Mat mat = Mat.FromPixelData(Height, Width, matType, ImageData);
 
                 return mat;

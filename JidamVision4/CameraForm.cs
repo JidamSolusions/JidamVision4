@@ -46,6 +46,14 @@ namespace JidamVision4
 
         public void UpdateDisplay(Bitmap bitmap = null)
         {
+            if (bitmap == null)
+            {
+                //#6_INSP_STAGE#3 업데이트시 bitmap이 없다면 InspSpace에서 가져온다
+                bitmap = Global.Inst.InspStage.GetBitmap(0);
+                if (bitmap == null)
+                    return;
+            }
+
             if (imageViewer != null)
                 imageViewer.LoadBitmap(bitmap);
         }

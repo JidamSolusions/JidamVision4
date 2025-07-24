@@ -11,10 +11,23 @@ using System.Threading.Tasks;
 
 namespace JidamVision4.Grab
 {
+    /*
+   #5_CAMERA_INTERFACE# - <<<카메라 인터페이스 구현>>> 
+   HikRobotCam 클래스를 이용해 카메라 인터페이스를 구현
+   1) x64 비트 환경 구성
+   2) HikRobotCam 라이브러리 추가 - MyCameraContro.Net 참조 추가
+   3) GrabUserBuffer 구조체 정의 - 카메라에서 이미지를 가져오기 위한 버퍼 구조체    
+   4) HikRobotCam 클래스 정의 - 카메라 인터페이스 구현   
+   */
+
+
     struct GrabUserBuffer
     {
+        //실제 이미지 데이터를 보관하는 배열(메모리 내 이미지 처리, 파일 읽기)
         private byte[] _imageBuffer;
+        //네이티브 코드에 넘기기 위한 포인터(PInvoke, OpenCVSharp, Native SDK)
         private IntPtr _imageBufferPtr;
+        //배열을 고정시켜 포인터 안정성 확보(배열 → 포인터 변환 시 메모리 고정)
         private GCHandle _imageHandle;
 
         public byte[] ImageBuffer
@@ -52,7 +65,7 @@ namespace JidamVision4.Grab
         }
     }
 
-    internal class HikRobotCam
+    internal class HikRobotCam : IDisposable
     {
         public delegate void GrabEventHandler<T>(object sender, T obj = null) where T : class;
 
@@ -67,12 +80,14 @@ namespace JidamVision4.Grab
 
         private IDevice _device = null;
 
+        // 이미지 취득 콜백함수
         void FrameGrabedEventHandler(object sender, FrameGrabbedEventArgs e)
         {
             Console.WriteLine("Get one frame: Width[{0}] , Height[{1}] , ImageSize[{2}], FrameNum[{3}]", e.FrameOut.Image.Width, e.FrameOut.Image.Height, e.FrameOut.Image.ImageSize, e.FrameOut.FrameNum);
 
             IFrameOut frameOut = e.FrameOut;
 
+            // 영상 취득이 완료되었을 때 이벤트 발생
             OnGrabCompleted(BufferIndex);
 
             if (_userImageBuffer[BufferIndex].ImageBuffer != null)
@@ -91,7 +106,7 @@ namespace JidamVision4.Grab
                     IImage outImage;
                     MvGvspPixelType dstPixelType = MvGvspPixelType.PixelType_Gvsp_RGB8_Packed;
 
-                    // ch:像素格式转换 | en:Pixel type convert 
+                    // Pixel type convert 
                     int result = _device.PixelTypeConverter.ConvertPixelType(inputImage, out outImage, dstPixelType);
                     if (result != MvError.MV_OK)
                     {
@@ -107,6 +122,7 @@ namespace JidamVision4.Grab
                 }
             }
 
+            // 영상 전송이 완료되었을 때 이벤트 발생
             OnTransferCompleted(BufferIndex);
 
             //IO 트리거 촬상시 최대 버퍼를 넘으면 첫번째 버퍼로 변경
@@ -120,15 +136,11 @@ namespace JidamVision4.Grab
 
         private string _strIpAddr = "";
 
-
-        #region Private Field
-        private bool _disposed = false;
-        #endregion
-
         #region Method
 
         internal bool Create(string strIpAddr = null)
         {
+            // Initialize SDK
             SDKSystem.Initialize();
 
             _strIpAddr = strIpAddr;
@@ -139,7 +151,7 @@ namespace JidamVision4.Grab
                 
                 List<IDeviceInfo> devInfoList;
 
-                // ch:枚举设备 | en:Enum device
+                // Enum device
                 int ret = DeviceEnumerator.EnumDevices(devLayerType, out devInfoList);
                 if (ret != MvError.MV_OK)
                 {
@@ -156,7 +168,7 @@ namespace JidamVision4.Grab
 
                 int selDevIndex = -1;
 
-                // ch:打印设备信息 en:Print device info
+                // Print device info
                 int devIndex = 0;
                 foreach (var devInfo in devInfoList)
                 {
@@ -172,7 +184,7 @@ namespace JidamVision4.Grab
                         string strIP = nIp1 + "." + nIp2 + "." + nIp3 + "." + nIp4;
                         Console.WriteLine("DevIP" + strIP);
 
-                        if (strIP == strIpAddr)
+                        if (_strIpAddr is null || strIP == strIpAddr)
                         {
                             selDevIndex = devIndex;
                             break;
@@ -191,7 +203,7 @@ namespace JidamVision4.Grab
                     return false;
                 }
 
-                // ch:创建设备 | en:Create device
+                // Create device
                 _device = DeviceFactory.CreateDevice(devInfoList[selDevIndex]);
 
                 _disposed = false;
@@ -202,6 +214,35 @@ namespace JidamVision4.Grab
                 ex.ToString();
                 return false;
             }
+            return true;
+        }
+
+        internal bool InitGrab()
+        {
+            if (!Create())
+                return false;
+
+            if (!Open())
+                return false;
+
+            return true;
+        }
+
+        internal bool InitBuffer(int bufferCount = 1)
+        {
+            if (bufferCount < 1)
+                return false;
+
+            _userImageBuffer = new GrabUserBuffer[bufferCount];
+            return true;
+        }
+
+        internal bool SetBuffer(byte[] buffer, IntPtr bufferPtr, GCHandle bufferHandle, int bufferIndex = 0)
+        {
+            _userImageBuffer[bufferIndex].ImageBuffer = buffer;
+            _userImageBuffer[bufferIndex].ImageBufferPtr = bufferPtr;
+            _userImageBuffer[bufferIndex].ImageHandle = bufferHandle;
+
             return true;
         }
 
@@ -282,7 +323,7 @@ namespace JidamVision4.Grab
                         }
                     }
 
-                    // ch:设置触发模式为off || en:set trigger mode as off
+                    // set trigger mode as off
                     ret = _device.Parameters.SetEnumValue("TriggerMode", 1);
                     if (ret != MvError.MV_OK)
                     {
@@ -299,10 +340,10 @@ namespace JidamVision4.Grab
                         _device.Parameters.SetEnumValueByString("TriggerSource", "Software");                        
                     }
                     
-                    // ch:注册回调函数 | en:Register image callback
+                    // Register image callback
                     _device.StreamGrabber.FrameGrabedEvent += FrameGrabedEventHandler;
 
-                    // ch:开启抓图 || en: start grab image
+                    // start grab image
                     ret = _device.StreamGrabber.StartGrabbing();
                     if (ret != MvError.MV_OK)
                     {
@@ -356,10 +397,13 @@ namespace JidamVision4.Grab
 
         protected void OnGrabCompleted(object obj = null)
         {
+            //Invoke는 델리게이트/ 이벤트 호출을 더 안전하고 명시적으로 표현하기 위한 표준적인 방법
             GrabCompleted?.Invoke(this, obj);
         }
+
         protected void OnTransferCompleted(object obj = null)
         {
+            //Invoke는 델리게이트/ 이벤트 호출을 더 안전하고 명시적으로 표현하기 위한 표준적인 방법
             TransferCompleted?.Invoke(this, obj);
         }
 
@@ -494,43 +538,13 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool InitGrab()
-        {
-            if (!Create())
-                return false;
-
-            if (!Open())
-                return false;
-
-            return true;
-        }
-
-        internal bool InitBuffer(int bufferCount = 1)
-        {
-            if (bufferCount < 1)
-                return false;
-
-            _userImageBuffer = new GrabUserBuffer[bufferCount];
-            return true;
-        }
-
-        internal bool SetBuffer(byte[] buffer, IntPtr bufferPtr, GCHandle bufferHandle, int bufferIndex = 0)
-        {
-            _userImageBuffer[bufferIndex].ImageBuffer = buffer;
-            _userImageBuffer[bufferIndex].ImageBufferPtr = bufferPtr;
-            _userImageBuffer[bufferIndex].ImageHandle = bufferHandle;
-
-            return true;
-        }
         #endregion
 
         #region Dispose
-        internal void Dispose()
-        {
-            Dispose(disposing: true);
-        }
 
-        internal void Dispose(bool disposing)
+        private bool _disposed = false;
+
+        protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
                 return;
@@ -545,17 +559,17 @@ namespace JidamVision4.Grab
                     _device.Dispose();
                     _device = null;
 
-                    // ch: 反初始化SDK | en: Finalize SDK
+                    // Finalize SDK
                     SDKSystem.Finalize();
                 }
             }
             _disposed = true;
         }
 
-        ~HikRobotCam()
+        public void Dispose()
         {
-            Dispose(disposing: false);
+            Dispose(disposing: true);
         }
-        #endregion
+        #endregion //Disposable
     }
 }

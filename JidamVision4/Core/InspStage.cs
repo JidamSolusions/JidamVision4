@@ -9,6 +9,16 @@ using System.Threading.Tasks;
 
 namespace JidamVision4.Core
 {
+    /*
+    #6_INSP_STAGE# - <<<비전검사를 위한 클래스 구현>>> 
+    InspStage는 비전 검사 시스템의 핵심 클래스로, 
+    카메라 인터페이스와 이미지 처리 기능을 통합하여 검사 프로세스를 관리합니다.
+    1) ImageSpace 클래스 구현
+    2) InspStage 클래스 구현
+    3) Global 클래스 구현
+    4) RunForm 클래스 구현
+    */
+
     //검사와 관련된 클래스를 관리하는 클래스
     public class InspStage : IDisposable
     {
@@ -19,6 +29,10 @@ namespace JidamVision4.Core
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
+        public ImageSpace ImageSpace
+        {
+            get => _imageSpace;
+        }
 
         public SaigeAI AIModule
         {
@@ -31,6 +45,7 @@ namespace JidamVision4.Core
 
         public bool Initialize()
         {
+            _imageSpace = new ImageSpace();
             _grabManager = new HikRobotCam();
 
             if (_grabManager.InitGrab() == true)
@@ -97,6 +112,7 @@ namespace JidamVision4.Core
             _grabManager.Grab(bufferIndex, true);
         }
 
+        //영상 취득 완료 이벤트 발생시 후처리
         private void _multiGrab_TransferCompleted(object sender, object e)
         {
             int bufferIndex = (int)e;
@@ -137,6 +153,14 @@ namespace JidamVision4.Core
             return bitmap;
         }
 
+        public Bitmap GetBitmap(int bufferIndex = -1)
+        {
+            if (Global.Inst.InspStage.ImageSpace is null)
+                return null;
+
+            return Global.Inst.InspStage.ImageSpace.GetBitmap();
+        }
+
         #region Disposable
 
         private bool disposed = false; // to detect redundant calls
@@ -148,6 +172,11 @@ namespace JidamVision4.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+                    if(_grabManager != null)
+                    {
+                        _grabManager.Dispose();
+                        _grabManager = null;
+                    }
                 }
 
                 // Dispose unmanaged managed resources.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JidamVision4.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -52,6 +53,9 @@ namespace JidamVision4
 
             //#2_DOCKPANEL#6 도킹 윈도우 로드 메서드 호출
             LoadDockingWindows();
+
+            //#6_INSP_STAGE#1 전역 인스턴스 초기화
+            Global.Inst.Initialize();
         }
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
@@ -63,6 +67,11 @@ namespace JidamVision4
             //메인폼 설정
             var cameraWindow = new CameraForm();
             cameraWindow.Show(_dockPanel, DockState.Document);
+
+
+            //메인폼 설정
+            var runWindow = new RunForm();
+            runWindow.Show(cameraWindow.Pane, DockAlignment.Bottom, 0.2);
 
             //속성창 추가
             var propWindow = new PropertiesForm();
@@ -95,6 +104,12 @@ namespace JidamVision4
                     cameraForm.LoadImage(filePath);
                 }
             }
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //#6_INSP_STAGE#2 전역 인스턴스 해제
+            Global.Inst.Dispose();
         }
     }
 }

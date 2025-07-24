@@ -118,6 +118,9 @@ namespace JidamVision4.UIControl
 
         private void FitImageToScreen()
         {
+            if (_bitmapImage is null)
+                return;
+
             RecalcZoomRatio();
 
             float NewWidth = _bitmapImage.Width * _curZoom;
