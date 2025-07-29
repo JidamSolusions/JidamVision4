@@ -102,7 +102,8 @@ namespace JidamVision4.Property
 
             if(engineType != _engineType)
             {
-                _saigeAI.Dispose();
+                if(_saigeAI != null)
+                    _saigeAI.Dispose();
             }
 
             _engineType = engineType;
