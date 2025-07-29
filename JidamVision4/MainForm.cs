@@ -106,9 +106,8 @@ namespace JidamVision4
             }
         }
 
-        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //#6_INSP_STAGE#2 전역 인스턴스 해제
             Global.Inst.Dispose();
         }
     }

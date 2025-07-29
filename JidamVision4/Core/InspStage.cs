@@ -172,6 +172,11 @@ namespace JidamVision4.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+                    if (_saigeAI != null)
+                    {
+                        _saigeAI.Dispose();
+                        _saigeAI = null;
+                    }
                     if(_grabManager != null)
                     {
                         _grabManager.Dispose();
