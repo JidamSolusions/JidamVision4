@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -9,7 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SaigeVision.Net.V2;
+using SaigeVision.Net.V2.Detection;
 using SaigeVision.Net.V2.IAD;
+using SaigeVision.Net.V2.Segmentation;
 
 namespace JidamVision4
 {
@@ -25,27 +28,58 @@ namespace JidamVision4
     8) PropertiesForm에 AIModuleProp UserControl 추가
     */
 
+    public enum AIEngineType
+    {
+        [Description("Anomaly Detection")]
+        AnomalyDetection = 0,
+        [Description("Segmentation")]
+        Segmentation,
+        [Description("Detection")]
+        Detection
+    }
+
     public class SaigeAI : IDisposable
     {
-        private enum EngineType { IAD, IAD_BATCH, SEG, SEG_BATCH, CLS, CLS_BATCH, DET, OCR, IEN }
-        private Dictionary<string, IADResult> _IADResults;
-
+        AIEngineType _engineType;
         IADEngine _iADEngine = null;
-        IADResult _iADresult = null;
+        IADResult _iADResult = null;
+        SegmentationEngine _segEngine = null;
+        SegmentationResult _segResult = null;
+        DetectionEngine _detEngine = null;
+        DetectionResult _detResult = null;
+
         Bitmap _inspImage = null;
 
         public SaigeAI()
         {
-            // 생성자에서 초기화 작업을 수행할 수 있습니다.
-            _IADResults = new Dictionary<string, IADResult>();
         }
 
         // 엔진을 로드하는 메서드입니다.
-        public void LoadEngine(string modelPath)
+        public void LoadEngine(string modelPath, AIEngineType engineType)
         {
-            if (this._iADEngine != null)
-                this._iADEngine.Dispose();
-                        
+            //GPU에 여러개 모델을 넣을 경우, 메모리가 부족할 수 있으므로, 해제
+            DisposeMode();
+
+            _engineType = engineType;
+
+            switch(_engineType)
+            {
+                case AIEngineType.AnomalyDetection:
+                    LoadIADEngine(modelPath);
+                    break;
+                case AIEngineType.Segmentation:
+                    LoadSegEngine(modelPath);
+                    break;
+                case AIEngineType.Detection:
+                    LoadDetEngine(modelPath);
+                    break;
+                default:
+                    throw new NotSupportedException("지원하지 않는 엔진 타입입니다.");
+            }
+        }
+
+        public void LoadIADEngine(string modelPath)
+        {
             // 검사하기 위한 엔진에 대한 객체를 생성합니다.
             // 인스턴스 생성 시 모데파일 정보와 GPU Index를 입력해줍니다.
             // 필요에 따라 batch size를 입력합니다
@@ -85,12 +119,72 @@ namespace JidamVision4
             _iADEngine.SetInferenceOption(option);
         }
 
-        // 입력된 이미지에서 IAD 검사 진행
-        public bool InspIAD(Bitmap bmpImage)
+        public void LoadSegEngine(string modelPath)
         {
-            if(_iADEngine == null)
+            // 검사하기 위한 엔진에 대한 객체를 생성합니다.
+            // 인스턴스 생성 시 모데파일 정보와 GPU Index를 입력해줍니다.
+            // 필요에 따라 batch size를 입력합니다
+            _segEngine = new SegmentationEngine(modelPath, 0);
+
+            // 검사 전 option에 대한 설정을 가져옵니다
+            SegmentationOption option = _segEngine.GetInferenceOption();
+
+            /// 추론 API 실행에 소요되는 시간을 세분화하여 출력할지 결정합니다.
+            /// `true`로 설정하면 이미지를 읽는 시간, 순수 딥러닝 추론 시간, 후처리 시간을 각각 확인할 수 있습니다.
+            /// `false`로 설정하면 추론 API 실행에 소요된 총 시간만을 확인할 수 있습니다.
+            /// `true`로 설정하면 전체 추론 시간이 느려질 수 있습니다. 실제 검사 시에는 `false`로 설정하는 것을 권장합니다.
+            option.CalcTime = true;
+            option.CalcObject = true;
+            option.CalcScoremap = false;
+            option.CalcMask = false;
+            option.CalcObjectAreaAndApplyThreshold = true;
+            option.CalcObjectScoreAndApplyThreshold = true;
+            option.OversizedImageHandling = OverSizeImageFlags.do_not_inspect;
+
+            //option.ObjectScoreThresholdPerClass[1] = 0;
+            //option.ObjectScoreThresholdPerClass[2] = 0;
+
+            //option.ObjectAreaThresholdPerClass[1] = 0;
+            //option.ObjectAreaThresholdPerClass[2] = 0;
+
+            // option을 적용하여 검사에 대한 조건을 변경할 수 있습니다.
+            // 필요에 따라 writeModelFile parameter를 이용하여 모델파일에 정보를 영구적으로 변경할 수 있습니다.
+            _segEngine.SetInferenceOption(option);
+        }
+
+        public void LoadDetEngine(string modelPath)
+        {
+            // 검사하기 위한 엔진에 대한 객체를 생성합니다.
+            // 인스턴스 생성 시 모데파일 정보와 GPU Index를 입력해줍니다.
+            // 필요에 따라 batch size, optimaize 사용 여부를 입력합니다.
+            _detEngine = new DetectionEngine(modelPath, 0);
+
+            // 검사 전 option에 대한 설정을 가져옵니다
+            DetectionOption option = _detEngine.GetInferenceOption();
+
+            option.CalcTime = true;
+
+            //option.ObjectScoreThresholdPerClass[1] = 50;
+            //option.ObjectScoreThresholdPerClass[2] = 50;
+
+            //option.ObjectAreaThresholdPerClass[1] = 0;
+            //option.ObjectAreaThresholdPerClass[2] = 0;
+
+            //option.MaxNumOfDetectedObjects[1] = -1;
+            //option.MaxNumOfDetectedObjects[2] = -1;
+
+            // option을 적용하여 검사에 대한 조건을 변경할 수 있습니다.
+            // 필요에 따라 writeModelFile parameter를 이용하여 모델파일에 정보를 영구적으로 변경할 수 있습니다.
+            _detEngine.SetInferenceOption(option);
+        }
+
+
+        // 입력된 이미지에서 IAD 검사 진행
+        public bool InspAIModule(Bitmap bmpImage)
+        {
+            if(bmpImage is null)
             {
-                MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
+                MessageBox.Show("이미지가 없습니다. 유효한 이미지를 입력해주세요.", "오류", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -100,8 +194,37 @@ namespace JidamVision4
 
             Stopwatch sw = Stopwatch.StartNew();
 
-            // 검사 후 결과를 받아옵니다.
-            _iADresult = _iADEngine.Inspection(srImage);
+            switch (_engineType)
+            {
+                case AIEngineType.AnomalyDetection:
+                    // IAD 엔진을 이용하여 검사합니다.
+                    if (_iADEngine == null)
+                    {
+                        MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
+                        return false;
+                    }
+
+                    _iADResult = _iADEngine.Inspection(srImage);
+                    break;
+                case AIEngineType.Segmentation:
+                    if (_segEngine == null)
+                    {
+                        MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
+                        return false;
+                    }
+                    // Segmentation 엔진을 이용하여 검사합니다.
+                    _segResult = _segEngine.Inspection(srImage);
+                    break;
+                case AIEngineType.Detection:
+                    if (_detEngine == null)
+                    {
+                        MessageBox.Show("엔진이 초기화되지 않았습니다. LoadEngine 메서드를 호출하여 엔진을 초기화하세요.");
+                        return false;
+                    }
+                    // Detection 엔진을 이용하여 검사합니다.
+                    _detResult = _detEngine.Inspection(srImage);
+                    break;
+            }
 
             //txt_InspectionTime.Text = sw.ElapsedMilliseconds.ToString();
             sw.Stop();
@@ -110,13 +233,13 @@ namespace JidamVision4
         }
 
         // IADResult를 이용하여 결과를 이미지에 그립니다.
-        private void DrawIADResult(IADResult result, Bitmap bmp)
+        private void DrawSegResult(SegmentedObject[] segmentedObjects, Bitmap bmp)
         {
             Graphics g = Graphics.FromImage(bmp);
             int step = 10;
 
             // outline contour
-            foreach (var prediction in result.SegmentedObjects)
+            foreach (var prediction in segmentedObjects)
             {
                 SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
                 //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
@@ -133,17 +256,69 @@ namespace JidamVision4
                 step += 50;
             }
         }
+        private void DrawDetectionResult(DetectionResult result, Bitmap bmp)
+        {
+            Graphics g = Graphics.FromImage(bmp);
+            int step = 10;
+
+            // outline contour
+            foreach (var prediction in result.DetectedObjects)
+            {
+                SolidBrush brush = new SolidBrush(Color.FromArgb(127, prediction.ClassInfo.Color));
+                //g.DrawString(prediction.ClassInfo.Name + " : " + prediction.Area, new Font(FontFamily.GenericSansSerif, 50), brush, 10, step);
+                using (GraphicsPath gp = new GraphicsPath())
+                {
+                    float x = (float)prediction.BoundingBox.X;
+                    float y = (float)prediction.BoundingBox.Y;
+                    float width = (float)prediction.BoundingBox.Width;
+                    float height = (float)prediction.BoundingBox.Height;
+                    gp.AddRectangle(new RectangleF(x, y, width, height));
+                    g.DrawPath(new Pen(brush, 10), gp);
+                }
+                step += 50;
+            }
+        }
 
         public Bitmap GetResultImage()
         {
-            if(_iADresult == null || _inspImage is null)
+            if (_inspImage is null)
                 return null;
 
             Bitmap resultImage = _inspImage.Clone(new Rectangle(0, 0, _inspImage.Width, _inspImage.Height), System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
-            DrawIADResult(_iADresult, resultImage);
+            switch (_engineType)
+            {
+                case AIEngineType.AnomalyDetection:
+                    if (_iADResult == null)
+                        return resultImage;
+                    DrawSegResult(_iADResult.SegmentedObjects, resultImage);
+                    break;
+                case AIEngineType.Segmentation:
+                    if (_segResult == null)
+                        return resultImage;
+                    DrawSegResult(_segResult.SegmentedObjects, resultImage);
+                    break;
+                case AIEngineType.Detection:
+                    if (_detResult == null)
+                        return resultImage;
+                    DrawDetectionResult(_detResult, resultImage);
+                    break;
+            }
 
             return resultImage;
+        }
+
+        private void DisposeMode()
+        {
+            //GPU에 여러개 모델을 넣을 경우, 메모리가 부족할 수 있으므로, 해제
+            if (_iADEngine != null)
+                _iADEngine.Dispose();
+
+            if (_segEngine != null)
+                _segEngine.Dispose();
+
+            if (_detEngine != null)
+                _detEngine.Dispose();
         }
 
         #region Disposable
@@ -157,11 +332,10 @@ namespace JidamVision4
                 if (disposing)
                 {
                     // Dispose managed resources.
-                    
+
                     // 검사완료 후 메모리 해제를 합니다.
                     // 엔진 사용이 완료되면 꼭 dispose 해주세요
-                    if(_iADEngine != null)
-                        _iADEngine.Dispose();
+                    DisposeMode();
                 }
 
                 // Dispose unmanaged managed resources.

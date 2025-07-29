@@ -62,6 +62,11 @@ namespace JidamVision4.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+                    if (_saigeAI != null)
+                    {
+                        _saigeAI.Dispose();
+                        _saigeAI = null;
+                    }
                 }
 
                 // Dispose unmanaged managed resources.

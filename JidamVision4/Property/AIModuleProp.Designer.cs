@@ -32,11 +32,12 @@
             this.btnSelAIModel = new System.Windows.Forms.Button();
             this.btnLoadModel = new System.Windows.Forms.Button();
             this.btnInspAI = new System.Windows.Forms.Button();
+            this.cbAIModelType = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // txtAIModelPath
             // 
-            this.txtAIModelPath.Location = new System.Drawing.Point(15, 16);
+            this.txtAIModelPath.Location = new System.Drawing.Point(13, 38);
             this.txtAIModelPath.Name = "txtAIModelPath";
             this.txtAIModelPath.ReadOnly = true;
             this.txtAIModelPath.Size = new System.Drawing.Size(240, 21);
@@ -44,7 +45,7 @@
             // 
             // btnSelAIModel
             // 
-            this.btnSelAIModel.Location = new System.Drawing.Point(163, 52);
+            this.btnSelAIModel.Location = new System.Drawing.Point(13, 65);
             this.btnSelAIModel.Name = "btnSelAIModel";
             this.btnSelAIModel.Size = new System.Drawing.Size(92, 28);
             this.btnSelAIModel.TabIndex = 1;
@@ -54,7 +55,7 @@
             // 
             // btnLoadModel
             // 
-            this.btnLoadModel.Location = new System.Drawing.Point(166, 86);
+            this.btnLoadModel.Location = new System.Drawing.Point(13, 99);
             this.btnLoadModel.Name = "btnLoadModel";
             this.btnLoadModel.Size = new System.Drawing.Size(89, 29);
             this.btnLoadModel.TabIndex = 2;
@@ -64,7 +65,7 @@
             // 
             // btnInspAI
             // 
-            this.btnInspAI.Location = new System.Drawing.Point(166, 121);
+            this.btnInspAI.Location = new System.Drawing.Point(13, 134);
             this.btnInspAI.Name = "btnInspAI";
             this.btnInspAI.Size = new System.Drawing.Size(89, 26);
             this.btnInspAI.TabIndex = 3;
@@ -72,10 +73,21 @@
             this.btnInspAI.UseVisualStyleBackColor = true;
             this.btnInspAI.Click += new System.EventHandler(this.btnInspAI_Click);
             // 
+            // cbAIModelType
+            // 
+            this.cbAIModelType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbAIModelType.FormattingEnabled = true;
+            this.cbAIModelType.Location = new System.Drawing.Point(13, 12);
+            this.cbAIModelType.Name = "cbAIModelType";
+            this.cbAIModelType.Size = new System.Drawing.Size(132, 20);
+            this.cbAIModelType.TabIndex = 4;
+            this.cbAIModelType.SelectedIndexChanged += new System.EventHandler(this.cbAIModelType_SelectedIndexChanged);
+            // 
             // AIModuleProp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.cbAIModelType);
             this.Controls.Add(this.btnInspAI);
             this.Controls.Add(this.btnLoadModel);
             this.Controls.Add(this.btnSelAIModel);
@@ -93,5 +105,6 @@
         private System.Windows.Forms.Button btnSelAIModel;
         private System.Windows.Forms.Button btnLoadModel;
         private System.Windows.Forms.Button btnInspAI;
+        private System.Windows.Forms.ComboBox cbAIModelType;
     }
 }

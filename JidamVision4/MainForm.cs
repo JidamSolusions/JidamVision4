@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JidamVision4.Core;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -95,6 +96,11 @@ namespace JidamVision4
                     cameraForm.LoadImage(filePath);
                 }
             }
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Global.Inst.Dispose();
         }
     }
 }
