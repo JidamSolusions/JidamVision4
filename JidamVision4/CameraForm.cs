@@ -1,4 +1,5 @@
 ﻿using JidamVision4.Core;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -56,6 +57,11 @@ namespace JidamVision4
 
             if (imageViewer != null)
                 imageViewer.LoadBitmap(bitmap);
+
+            //#7_BINARY_PREVIEW#10 현재 선택된 이미지로 Previwe이미지 갱신
+            //이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정            
+            Mat curImage = Global.Inst.InspStage.GetMat();
+            Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
         public Bitmap GetDisplayImage()
@@ -67,6 +73,9 @@ namespace JidamVision4
 
             return curImage;
         }
-
+        public void UpdateImageViewer()
+        {
+            imageViewer.Invalidate();
+        }
     }
 }

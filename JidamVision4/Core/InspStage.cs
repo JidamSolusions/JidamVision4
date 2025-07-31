@@ -1,4 +1,7 @@
-﻿using JidamVision4.Grab;
+﻿using JidamVision4.Algorithm;
+using JidamVision4.Grab;
+using OpenCvSharp;
+using OpenCvSharp.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -30,8 +33,12 @@ namespace JidamVision4.Core
         //private HikRobotCam _grabManager = null;
         private GrabModel _grabManager = null;
         private CameraType _camType = CameraType.WebCam;
-
+        
         SaigeAI _saigeAI; // SaigeAI 인스턴스
+
+        //#7_BINARY_PREVIEW#1 이진화 프리뷰에 필요한 변수 선언
+        BlobAlgorithm _blobAlgorithm = null; // Blob 알고리즘 인스턴스
+        private PreviewImage _previewImage = null;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -48,9 +55,24 @@ namespace JidamVision4.Core
             }                
         }
 
+        //#7_BINARY_PREVIEW#2 이진화 알고리즘과 프리뷰 변수에 대한 프로퍼티 생성
+        public BlobAlgorithm BlobAlgorithm
+        {
+            get => _blobAlgorithm;
+        }
+
+        public PreviewImage PreView
+        {
+            get => _previewImage;
+        }
+
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
+
+            //#7_BINARY_PREVIEW#3 이진화 알고리즘과 프리뷰 변수 인스턴스 생성
+            _blobAlgorithm = new BlobAlgorithm();
+            _previewImage = new PreviewImage();
 
             switch (_camType)
             {
@@ -99,6 +121,21 @@ namespace JidamVision4.Core
 
             //_grabManager.SetExposureTime(25000);
 
+            //#7_BINARY_PREVIEW#9 이진화 알고리즘을 속성창에 연동하기 위한 함수 구현            
+            UpdateProperty();
+        }
+
+
+        private void UpdateProperty()
+        {
+            if (BlobAlgorithm is null)
+                return;
+
+            PropertiesForm propertiesForm = MainForm.GetDockForm<PropertiesForm>();
+            if (propertiesForm is null)
+                return;
+
+            propertiesForm.UpdateProperty(BlobAlgorithm);
         }
 
         public void SetBuffer(int bufferCount)
@@ -122,7 +159,6 @@ namespace JidamVision4.Core
             }
         }
 
-
         public void Grab(int bufferIndex)
         {
             if (_grabManager == null)
@@ -140,6 +176,12 @@ namespace JidamVision4.Core
             _imageSpace.Split(bufferIndex);
 
             DisplayGrabImage(bufferIndex);
+
+            if (_previewImage != null)
+            {
+                Bitmap bitmap = ImageSpace.GetBitmap(0);
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
         }
 
         private void DisplayGrabImage(int bufferIndex)
@@ -179,6 +221,23 @@ namespace JidamVision4.Core
 
             return Global.Inst.InspStage.ImageSpace.GetBitmap();
         }
+
+        //#7_BINARY_PREVIEW#4 이진화 프리뷰를 위해, ImageSpace에서 이미지 가져오기
+        public Mat GetMat()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat();
+        }
+
+        //#7_BINARY_PREVIEW#5 이진화 임계값 변경시, 프리뷰 갱신
+        public void RedrawMainView()
+        {
+            CameraForm cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.UpdateImageViewer();
+            }
+        }
+
 
         #region Disposable
 

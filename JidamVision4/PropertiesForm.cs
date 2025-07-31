@@ -1,4 +1,6 @@
-﻿using JidamVision4.Property;
+﻿using JidamVision4.Algorithm;
+using JidamVision4.Core;
+using JidamVision4.Property;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -83,6 +85,10 @@ namespace JidamVision4
             {
                 case PropertyType.Binary:
                     BinaryProp blobProp = new BinaryProp();
+
+                    //#7_BINARY_PREVIEW#8 이진화 속성 변경시 발생하는 이벤트 추가
+                    blobProp.RangeChanged += RangeSlider_RangeChanged;
+                    blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
                 case PropertyType.Filter:
@@ -100,5 +106,39 @@ namespace JidamVision4
             return curProp;
         }
 
+        public void UpdateProperty(BlobAlgorithm blobAlgorithm)
+        {
+            if (blobAlgorithm is null)
+                return;
+
+            foreach (TabPage tabPage in tabPropControl.TabPages)
+            {
+                if (tabPage.Controls.Count > 0)
+                {
+                    UserControl uc = tabPage.Controls[0] as UserControl;
+
+                    if (uc is BinaryProp binaryProp)
+                    {
+                        binaryProp.SetAlgorithm(blobAlgorithm);
+                    }
+                }
+            }
+        }
+
+        //#7_BINARY_PREVIEW#7 이진화 속성 변경시 발생하는 이벤트 구현
+        private void RangeSlider_RangeChanged(object sender, RangeChangedEventArgs e)
+        {
+            // 속성값을 이용하여 이진화 임계값 설정
+            int lowerValue = e.LowerValue;
+            int upperValue = e.UpperValue;
+            bool invert = e.Invert;
+            ShowBinaryMode showBinMode = e.ShowBinMode;
+            Global.Inst.InspStage.PreView?.SetBinary(lowerValue, upperValue, invert, showBinMode);
+        }
+
+        private void PropertyChanged(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.RedrawMainView();
+        }
     }
 }
