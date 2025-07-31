@@ -25,7 +25,12 @@ namespace JidamVision4.Core
         public static readonly int MAX_GRAB_BUF = 5;
 
         private ImageSpace _imageSpace = null;
-        private HikRobotCam _grabManager = null;
+
+        //#5_CAMERA_INTERFACE#4 Dispose도 GrabModel에서 상속받아 사용
+        //private HikRobotCam _grabManager = null;
+        private GrabModel _grabManager = null;
+        private CameraType _camType = CameraType.WebCam;
+
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         public InspStage() { }
@@ -46,9 +51,23 @@ namespace JidamVision4.Core
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
-            _grabManager = new HikRobotCam();
 
-            if (_grabManager.InitGrab() == true)
+            switch (_camType)
+            {
+                //#5_CAMERA_INTERFACE#5 타입에 따른 카메라 인스턴스 생성
+                case CameraType.WebCam:
+                    {
+                        _grabManager = new WebCam();
+                        break;
+                    }
+                case CameraType.HikRobotCam:
+                    {
+                        _grabManager = new HikRobotCam();
+                        break;
+                    }
+            }
+
+            if (_grabManager != null && _grabManager.InitGrab() == true)
             {
                 _grabManager.TransferCompleted += _multiGrab_TransferCompleted;
 

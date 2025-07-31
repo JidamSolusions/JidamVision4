@@ -20,63 +20,11 @@ namespace JidamVision4.Grab
    4) HikRobotCam 클래스 정의 - 카메라 인터페이스 구현   
    */
 
-
-    struct GrabUserBuffer
+    //#5_CAMERA_INTERFACE#1 GrabModel로 상속 변경
+    //internal class HikRobotCam : IDisposable
+    internal class HikRobotCam : GrabModel
     {
-        //실제 이미지 데이터를 보관하는 배열(메모리 내 이미지 처리, 파일 읽기)
-        private byte[] _imageBuffer;
-        //네이티브 코드에 넘기기 위한 포인터(PInvoke, OpenCVSharp, Native SDK)
-        private IntPtr _imageBufferPtr;
-        //배열을 고정시켜 포인터 안정성 확보(배열 → 포인터 변환 시 메모리 고정)
-        private GCHandle _imageHandle;
-
-        public byte[] ImageBuffer
-        {
-            get
-            {
-                return _imageBuffer;
-            }
-            set
-            {
-                _imageBuffer = value;
-            }
-        }
-        public IntPtr ImageBufferPtr
-        {
-            get
-            {
-                return _imageBufferPtr;
-            }
-            set
-            {
-                _imageBufferPtr = value;
-            }
-        }
-        public GCHandle ImageHandle
-        {
-            get
-            {
-                return _imageHandle;
-            }
-            set
-            {
-                _imageHandle = value;
-            }
-        }
-    }
-
-    internal class HikRobotCam : IDisposable
-    {
-        public delegate void GrabEventHandler<T>(object sender, T obj = null) where T : class;
-
-        public event GrabEventHandler<object> GrabCompleted;
-        public event GrabEventHandler<object> TransferCompleted;
-
-        protected GrabUserBuffer[] _userImageBuffer = null;
-        public int BufferIndex { get; set; } = 0;
-
-        internal bool HardwareTrigger { get; set; } = false;
-        internal bool IncreaseBufferIndex { get; set; } = false;
+        //#5_CAMERA_INTERFACE#2 GrabModel로 내부 변수 이동
 
         private IDevice _device = null;
 
@@ -134,11 +82,10 @@ namespace JidamVision4.Grab
             }
         }
 
-        private string _strIpAddr = "";
-
         #region Method
 
-        internal bool Create(string strIpAddr = null)
+        //#5_CAMERA_INTERFACE#3 GrabModel에서 상속받은 함수를 위해 override 추가
+        internal override bool Create(string strIpAddr = null)
         {
             // Initialize SDK
             SDKSystem.Initialize();
@@ -217,36 +164,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool InitGrab()
-        {
-            if (!Create())
-                return false;
-
-            if (!Open())
-                return false;
-
-            return true;
-        }
-
-        internal bool InitBuffer(int bufferCount = 1)
-        {
-            if (bufferCount < 1)
-                return false;
-
-            _userImageBuffer = new GrabUserBuffer[bufferCount];
-            return true;
-        }
-
-        internal bool SetBuffer(byte[] buffer, IntPtr bufferPtr, GCHandle bufferHandle, int bufferIndex = 0)
-        {
-            _userImageBuffer[bufferIndex].ImageBuffer = buffer;
-            _userImageBuffer[bufferIndex].ImageBufferPtr = bufferPtr;
-            _userImageBuffer[bufferIndex].ImageHandle = bufferHandle;
-
-            return true;
-        }
-
-        internal bool Grab(int bufferIndex, bool waitDone)
+        internal override bool Grab(int bufferIndex, bool waitDone)
         {
             if (_device == null)
                 return false;
@@ -273,7 +191,7 @@ namespace JidamVision4.Grab
             return ret;
         }
 
-        internal bool Close()
+        internal override bool Close()
         {
             if (_device != null)
             {
@@ -284,7 +202,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool Open()
+        internal override bool Open()
         {
             try
             {
@@ -361,7 +279,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool Reconnect()
+        internal override bool Reconnect()
         {
             if (_device is null)
             {
@@ -372,7 +290,7 @@ namespace JidamVision4.Grab
             return Open();
         }
 
-        internal bool GetPixelBpp(out int pixelBpp)
+        internal override bool GetPixelBpp(out int pixelBpp)
         {
             pixelBpp = 8;
             if (_device == null)
@@ -395,20 +313,9 @@ namespace JidamVision4.Grab
         }
         #endregion
 
-        protected void OnGrabCompleted(object obj = null)
-        {
-            //Invoke는 델리게이트/ 이벤트 호출을 더 안전하고 명시적으로 표현하기 위한 표준적인 방법
-            GrabCompleted?.Invoke(this, obj);
-        }
-
-        protected void OnTransferCompleted(object obj = null)
-        {
-            //Invoke는 델리게이트/ 이벤트 호출을 더 안전하고 명시적으로 표현하기 위한 표준적인 방법
-            TransferCompleted?.Invoke(this, obj);
-        }
 
         #region Parameter Setting
-        internal bool SetExposureTime(long exposure)
+        internal override bool SetExposureTime(long exposure)
         {
             if (_device == null)
                 return false;
@@ -424,7 +331,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool GetExposureTime(out long exposure)
+        internal override bool GetExposureTime(out long exposure)
         {
             exposure = 0;
             if (_device == null)
@@ -440,7 +347,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool SetGain(long gain)
+        internal override bool SetGain(float gain)
         {
             if (_device == null)
                 return false;
@@ -456,7 +363,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool GetGain(out long gain)
+        internal override bool GetGain(out float gain)
         {
             gain = 0;
             if (_device == null)
@@ -466,13 +373,13 @@ namespace JidamVision4.Grab
             int result = _device.Parameters.GetFloatValue("Gain", out floatValue);
             if (result == MvError.MV_OK)
             {
-                gain = (long)floatValue.CurValue;
+                gain = floatValue.CurValue;
             }
 
             return true;
         }
 
-        internal bool GetResolution(out int width, out int height, out int stride)
+        internal override bool GetResolution(out int width, out int height, out int stride)
         {
             width = 0;
             height = 0;
@@ -519,7 +426,7 @@ namespace JidamVision4.Grab
             return true;
         }
 
-        internal bool SetTriggerMode(bool hardwareTrigger)
+        internal override bool SetTriggerMode(bool hardwareTrigger)
         {
             if (_device is null)
                 return false;
@@ -544,7 +451,7 @@ namespace JidamVision4.Grab
 
         private bool _disposed = false;
 
-        protected virtual void Dispose(bool disposing)
+        protected void Dispose(bool disposing)
         {
             if (_disposed)
                 return;
@@ -566,7 +473,8 @@ namespace JidamVision4.Grab
             _disposed = true;
         }
 
-        public void Dispose()
+        //#5_CAMERA_INTERFACE#4 Dispose도 GrabModel에서 상속받아 사용
+        internal override void Dispose()
         {
             Dispose(disposing: true);
         }
