@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using JidamVision4.Algorithm;
+using JidamVision4.Core;
 
 namespace JidamVision4.UIControl
 {
@@ -40,6 +42,10 @@ namespace JidamVision4.UIControl
         // 최소 및 최대 줌 제한 값
         private float MinZoom = 1.0f;
         private const float MaxZoom = 100.0f;
+
+        //#8_INSPECT_BINARY#15 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
+        private List<DrawInspectInfo> _rectInfos = new List<DrawInspectInfo>();
+
 
         public ImageViewCtrl()
         {
@@ -184,9 +190,102 @@ namespace JidamVision4.UIControl
                     g.InterpolationMode = InterpolationMode.NearestNeighbor;
                     g.DrawImage(_bitmapImage, ImageRect);
 
+                    //#8_INSPECT_BINARY#16 _rectInfos 그리기
+                    DrawDiagram(g);
+
                     // 캔버스를 UserControl 화면에 표시
                     e.Graphics.DrawImage(Canvas, 0, 0);
                 }
+            }
+        }
+
+        private void DrawDiagram(Graphics g)
+        {
+            // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
+            if (_rectInfos != null)
+            {
+                foreach (DrawInspectInfo rectInfo in _rectInfos)
+                {
+                    Color lineColor = Color.LightCoral;
+                    if (rectInfo.decision == DecisionType.Defect)
+                        lineColor = Color.Red;
+                    else if (rectInfo.decision == DecisionType.Good)
+                        lineColor = Color.LightGreen;
+
+                    Rectangle rect = new Rectangle(rectInfo.rect.X, rectInfo.rect.Y, rectInfo.rect.Width, rectInfo.rect.Height);
+                    Rectangle screenRect = VirtualToScreen(rect);
+
+                    using (Pen pen = new Pen(lineColor, 2))
+                    {
+                        if (rectInfo.UseRotatedRect)
+                        {
+                            PointF[] screenPoints = rectInfo.rotatedPoints
+                                                    .Select(p => VirtualToScreen(new PointF(p.X, p.Y))) // 화면 좌표계로 변환
+                                                    .ToArray();
+
+                            if (screenPoints.Length == 4)
+                            {
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    g.DrawLine(pen, screenPoints[i], screenPoints[(i + 1) % 4]); // 시계방향으로 선 연결
+                                }
+                            }
+                        }
+                        else
+                        {
+                            g.DrawRectangle(pen, screenRect);
+                        }
+                    }
+
+                    if (rectInfo.info != "")
+                    {
+                        float baseFontSize = 20.0f;
+
+                        if (rectInfo.decision == DecisionType.Info)
+                        {
+                            baseFontSize = 3.0f;
+                            lineColor = Color.LightBlue;
+                        }
+
+                        float fontSize = baseFontSize * _curZoom;
+
+                        // 스코어 문자열 그리기 (우상단)
+                        string infoText = rectInfo.info;
+                        PointF textPos = new PointF(screenRect.Left, screenRect.Top); // 위로 약간 띄우기
+
+                        if (rectInfo.inspectType == InspectType.InspBinary
+                            && rectInfo.decision != DecisionType.Info)
+                        {
+                            textPos.Y = screenRect.Bottom - fontSize;
+                        }
+
+                        DrawText(g, infoText, textPos, fontSize, lineColor);
+                    }
+                }
+            }
+        }
+
+        private void DrawText(Graphics g, string text, PointF position, float fontSize, Color color)
+        {
+            using (Font font = new Font("Arial", fontSize, FontStyle.Bold))
+            // 테두리용 검정색 브러시
+            using (Brush outlineBrush = new SolidBrush(Color.Black))
+            // 본문용 노란색 브러시
+            using (Brush textBrush = new SolidBrush(color))
+            {
+                // 테두리 효과를 위해 주변 8방향으로 그리기
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    for (int dy = -1; dy <= 1; dy++)
+                    {
+                        if (dx == 0 && dy == 0) continue; // 가운데는 제외
+                        PointF borderPos = new PointF(position.X + dx, position.Y + dy);
+                        g.DrawString(text, font, outlineBrush, borderPos);
+                    }
+                }
+
+                // 본문 텍스트
+                g.DrawString(text, font, textBrush, position);
             }
         }
 
@@ -280,6 +379,19 @@ namespace JidamVision4.UIControl
         private void ImageViewCtrl_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             FitImageToScreen();
+        }
+
+        //#8_INSPECT_BINARY#17 화면에 보여줄 영역 정보를 표시하기 위해, 위치 입력 받는 함수
+        public void AddRect(List<DrawInspectInfo> rectInfos)
+        {
+            _rectInfos.AddRange(rectInfos);
+            Invalidate();
+        }
+
+        public void ResetEntity()
+        {
+            _rectInfos.Clear();
+            Invalidate();
         }
     }
 }

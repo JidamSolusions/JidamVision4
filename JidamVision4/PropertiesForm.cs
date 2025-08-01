@@ -35,9 +35,10 @@ namespace JidamVision4
             InitializeComponent();
 
             //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
-            LoadOptionControl(PropertyType.Filter);
             LoadOptionControl(PropertyType.Binary);
+            LoadOptionControl(PropertyType.Filter);
             LoadOptionControl(PropertyType.AIModule);
+            tabPropControl.SelectedIndex = 0; // 첫 번째 탭 선택
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성

@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.btnGrab = new System.Windows.Forms.Button();
+            this.btnStart = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGrab
@@ -41,11 +42,22 @@
             this.btnGrab.UseVisualStyleBackColor = true;
             this.btnGrab.Click += new System.EventHandler(this.btnGrab_Click);
             // 
+            // btnStart
+            // 
+            this.btnStart.Location = new System.Drawing.Point(110, 12);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(92, 49);
+            this.btnStart.TabIndex = 0;
+            this.btnStart.Text = "검사";
+            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            // 
             // RunForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(222, 74);
+            this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnGrab);
             this.Name = "RunForm";
             this.Text = "RunForm";
@@ -56,5 +68,6 @@
         #endregion
 
         private System.Windows.Forms.Button btnGrab;
+        private System.Windows.Forms.Button btnStart;
     }
 }

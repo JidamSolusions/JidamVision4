@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\BlobAlgorithm.cs" />
+    <Compile Include="Algorithm\DrawInspectInfo.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
     <Compile Include="CameraForm.cs">
       <SubType>Form</SubType>
@@ -95,6 +96,7 @@
     <Compile Include="CameraForm.Designer.cs">
       <DependentUpon>CameraForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Core\Define.cs" />
     <Compile Include="Core\Global.cs" />
     <Compile Include="Core\ImageSpace.cs" />
     <Compile Include="Core\InspStage.cs" />

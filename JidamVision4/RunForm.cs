@@ -23,5 +23,11 @@ namespace JidamVision4
         {
             Global.Inst.InspStage.Grab(0);
         }
+
+        //#8_INSPECT_BINARY#20 검사 시작 버튼을 디자인창에서 만들고, 검사 함수 호출
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.TryInspection();
+        }
     }
 }
