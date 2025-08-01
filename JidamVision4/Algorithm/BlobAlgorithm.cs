@@ -16,8 +16,8 @@ namespace JidamVision4.Algorithm
     비젼검사를 위한 알고리즘 클래스를 구성하고, 그 안에서 이진화 임계값을 사용해 프리뷰 구현
    1) Algorithm / InspAlgorithm 클래스 생성 - 검사 알고리즘을 위한 추상화 클래스
    2) Algorithm / BlobAlgorithm 클래스 생성 - InspAlgorithm를 상속 받아, 이진화 검사를 위한 클래스
-   3) Core / PreviewImagfe 클래스 생성 - 이진화 프리뷰를 구현하는 클래스
-   4) #7_BINARY_PREVIEW#
+   3) Core / PreviewImage 클래스 생성 - 이진화 프리뷰를 구현하는 클래스
+   4) #7_BINARY_PREVIEW#1~10까지 구현
    */
 
     //이진화 임계값 설정을 구조체로 만들기
