@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using JidamVision4.Teach;
 
 namespace JidamVision4.Core
 {
@@ -14,12 +15,21 @@ namespace JidamVision4.Core
     {
         private Mat _orinalImage = null;
         private Mat _previewImage = null;
+
+        //#10_INSPWINDOW#5 프리뷰를 위한 InspWindow 변수
+        private InspWindow _inspWindow = null;
         private bool _usePreview = true;
 
         public void SetImage(Mat image)
         {
             _orinalImage = image;
             _previewImage = new Mat();
+        }
+
+        //#10_INSPWINDOW#6 프리뷰를 위한 InspWindow 설정
+        public void SetInspWindow(InspWindow inspwindow)
+        {
+            _inspWindow = inspwindow;
         }
 
         //ShowBinaryMode에 따라 이진화 프리뷰 진행
@@ -44,7 +54,13 @@ namespace JidamVision4.Core
             }
 
             Rect windowArea = new Rect(0, 0, _orinalImage.Width, _orinalImage.Height);
-            
+
+            //#10_INSPWINDOW#7 InspWindow가 있다면 프리뷰 설정 영역을 ROI로 변경
+            if (_inspWindow != null)
+            {
+                windowArea = _inspWindow.WindowArea;
+            }
+
             Mat orgRoi = _orinalImage[windowArea];
 
             Mat grayImage = new Mat();

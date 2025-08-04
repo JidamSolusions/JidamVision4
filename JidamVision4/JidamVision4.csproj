@@ -110,6 +110,12 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ModelTreeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ModelTreeForm.Designer.cs">
+      <DependentUpon>ModelTreeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="PropertiesForm.cs">
       <SubType>Form</SubType>
@@ -143,6 +149,10 @@
     <Compile Include="RunForm.Designer.cs">
       <DependentUpon>RunForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Teach\DiagramEntity.cs" />
+    <Compile Include="Teach\InspWindow.cs" />
+    <Compile Include="Teach\InspWindowFactory.cs" />
+    <Compile Include="Teach\Model.cs" />
     <Compile Include="UIControl\ImageViewCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -161,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModelTreeForm.resx">
+      <DependentUpon>ModelTreeForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>

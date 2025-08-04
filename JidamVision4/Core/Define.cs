@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace JidamVision4.Core
 {
+    //#10_INSPWINDOW#4 InspWindow 정의
+    public enum InspWindowType
+    {
+        None = 0,
+        Base,
+        Body,
+        Sub
+    }
 
     public enum DecisionType
     {

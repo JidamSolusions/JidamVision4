@@ -1,6 +1,7 @@
 ﻿using JidamVision4.Algorithm;
 using JidamVision4.Core;
 using JidamVision4.Property;
+using JidamVision4.Teach;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,14 +15,6 @@ using WeifenLuo.WinFormsUI.Docking;
 
 namespace JidamVision4
 {
-    //#3_CAMERAVIEW_PROPERTY#3 속성창에 사용할 타입 선언
-    public enum PropertyType
-    {
-        Binary,
-        Filter,
-        AIModule
-    }
-
     //#2_DOCKPANEL#4 PropertiesForm 클래스 는 도킹 가능하도록 상속을 변경
 
     //public partial class PropertiesForm: Form
@@ -33,18 +26,12 @@ namespace JidamVision4
         public PropertiesForm()
         {
             InitializeComponent();
-
-            //#3_CAMERAVIEW_PROPERTY#7 속성 탭을 초기화
-            LoadOptionControl(PropertyType.Binary);
-            LoadOptionControl(PropertyType.Filter);
-            LoadOptionControl(PropertyType.AIModule);
-            tabPropControl.SelectedIndex = 0; // 첫 번째 탭 선택
         }
 
         //#3_CAMERAVIEW_PROPERTY#6 속성탭이 있다면 그것을 반환하고, 없다면 생성
-        private void LoadOptionControl(PropertyType propType)
+        private void LoadOptionControl(InspectType inspType)
         {
-            string tabName = propType.ToString();
+            string tabName = inspType.ToString();
 
             // 이미 있는 TabPage인지 확인
             foreach (TabPage tabPage in tabPropControl.TabPages)
@@ -61,7 +48,7 @@ namespace JidamVision4
             }
 
             // 새로운 UserControl 생성
-            UserControl _inspProp = CreateUserControl(propType);
+            UserControl _inspProp = CreateUserControl(inspType);
             if (_inspProp == null)
                 return;
 
@@ -78,25 +65,27 @@ namespace JidamVision4
             _allTabs[tabName] = newTab;
         }
 
+        //#11_MODEL_TREE#2 PropertyType을 InspectType으로 변경
+
         //#3_CAMERAVIEW_PROPERTY# 5 속성 탭을 생성하는 메서드
-        private UserControl CreateUserControl(PropertyType propType)
+        private UserControl CreateUserControl(InspectType inspPropType)
         {
             UserControl curProp = null;
-            switch (propType)
+            switch (inspPropType)
             {
-                case PropertyType.Binary:
+                case InspectType.InspBinary:
                     BinaryProp blobProp = new BinaryProp();
 
                     //#7_BINARY_PREVIEW#8 이진화 속성 변경시 발생하는 이벤트 추가
                     blobProp.RangeChanged += RangeSlider_RangeChanged;
-                    blobProp.PropertyChanged += PropertyChanged;
+                    //blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
-                case PropertyType.Filter:
+                case InspectType.InspFilter:
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
                     break;
-                case PropertyType.AIModule:
+                case InspectType.InspAIModule:
                     AIModuleProp aiModuleProp = new AIModuleProp();
                     curProp = aiModuleProp;
                     break;
@@ -107,9 +96,23 @@ namespace JidamVision4
             return curProp;
         }
 
-        public void UpdateProperty(BlobAlgorithm blobAlgorithm)
+        //#11_MODEL_TREE#3 InspWindow에서 사용하는 알고리즘을 모두 탭에 추가
+        public void ShowProperty(InspWindow window)
         {
-            if (blobAlgorithm is null)
+            foreach (InspAlgorithm algo in window.AlgorithmList)
+            {
+                LoadOptionControl(algo.InspectType);
+            }
+        }
+
+        public void ResetProperty()
+        {
+            tabPropControl.TabPages.Clear();
+        }
+
+        public void UpdateProperty(InspWindow window)
+        {
+            if (window is null)
                 return;
 
             foreach (TabPage tabPage in tabPropControl.TabPages)
@@ -120,7 +123,11 @@ namespace JidamVision4
 
                     if (uc is BinaryProp binaryProp)
                     {
-                        binaryProp.SetAlgorithm(blobAlgorithm);
+                        BlobAlgorithm blobAlgo = (BlobAlgorithm)window.FindInspAlgorithm(InspectType.InspBinary);
+                        if (blobAlgo is null)
+                            continue;
+
+                        binaryProp.SetAlgorithm(blobAlgo);
                     }
                 }
             }

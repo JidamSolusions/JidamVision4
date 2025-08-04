@@ -101,6 +101,41 @@ namespace JidamVision4.Algorithm
             BinThreshold = new BinaryThreshold(100, 200, false);
         }
 
+        //#10_INSPWINDOW#3 InspWindow 복사를 위한 BlobAlgorithm 복사 함수
+        public override InspAlgorithm Clone()
+        {
+            var cloneAlgo = new BlobAlgorithm();
+
+            // 공통 필드 복사
+            this.CopyBaseTo(cloneAlgo);
+
+            cloneAlgo.CopyFrom(this);
+
+            return cloneAlgo;
+        }
+
+        public override bool CopyFrom(InspAlgorithm sourceAlgo)
+        {
+            BlobAlgorithm blobAlgo = (BlobAlgorithm)sourceAlgo;
+
+            this.BinThreshold = blobAlgo.BinThreshold;
+            this.BinMethod = blobAlgo.BinMethod;
+            this.UseRotatedRect = blobAlgo.UseRotatedRect;
+
+            this.BlobFilters = blobAlgo.BlobFilters
+                               .Select(b => new BlobFilter
+                               {
+                                   name = b.name,
+                                   isUse = b.isUse,
+                                   min = b.min,
+                                   max = b.max
+                               })
+                               .ToList();
+
+            return true;
+        }
+
+
         //BlobAlgorithm 생성시, 기본 필터 설정
         public void SetDefault()
         {
