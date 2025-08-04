@@ -1,6 +1,7 @@
 ﻿using JidamVision4.Algorithm;
 using JidamVision4.Grab;
 using JidamVision4.Teach;
+using JidamVision4.Setting;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using System;
@@ -72,13 +73,6 @@ namespace JidamVision4.Core
             get => _previewImage;
         }
 
-        //#10_INSPWINDOW#9 현재 모델 프로퍼티 생성
-        public Model CurModel
-        {
-            get => _model;
-        }
-
-
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
@@ -86,9 +80,6 @@ namespace JidamVision4.Core
             //#7_BINARY_PREVIEW#3 이진화 알고리즘과 프리뷰 변수 인스턴스 생성
             _blobAlgorithm = new BlobAlgorithm();
             _previewImage = new PreviewImage();
-
-            //#10_INSPWINDOW#10 모델 인스턴스 생성
-            _model = new Model();
 
             switch (_camType)
             {
@@ -113,6 +104,12 @@ namespace JidamVision4.Core
             }
 
             return true;
+        }
+
+        private void LoadSetting()
+        {
+            //카메라 설정 타입 얻기
+            _camType = SettingXml.Inst.CamType;
         }
 
         public void InitModelGrab(int bufferCount)
@@ -332,7 +329,7 @@ namespace JidamVision4.Core
         }
 
         //영상 취득 완료 이벤트 발생시 후처리
-        private void _multiGrab_TransferCompleted(object sender, object e)
+        private async void _multiGrab_TransferCompleted(object sender, object e)
         {
             int bufferIndex = (int)e;
             Console.WriteLine($"_multiGrab_TransferCompleted {bufferIndex}");
@@ -345,6 +342,14 @@ namespace JidamVision4.Core
             {
                 Bitmap bitmap = ImageSpace.GetBitmap(0);
                 _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
+
+            //#8_LIVE#2 LIVE 모드일때, Grab을 계속 실행하여, 반복되도록 구현
+            //이 함수는 await를 사용하여 비동기적으로 실행되어, 함수를 async로 선언해야 합니다.
+            if (LiveMode)
+            {
+                await Task.Delay(100);  // 비동기 대기
+                _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
             }
         }
 

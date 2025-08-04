@@ -29,5 +29,16 @@ namespace JidamVision4
         {
             Global.Inst.InspStage.TryInspection();
         }
+
+        //#8_LIVE#3 라이브 모드 버튼 추가
+        private void btnLive_Click(object sender, EventArgs e)
+        {
+            Global.Inst.InspStage.LiveMode = !Global.Inst.InspStage.LiveMode;
+
+            if (Global.Inst.InspStage.LiveMode)
+            {
+                Global.Inst.InspStage.Grab(0);
+            }
+        }
     }
 }
