@@ -73,6 +73,17 @@ namespace JidamVision4.Core
             get => _previewImage;
         }
 
+        //#10_INSPWINDOW#9 현재 모델 프로퍼티 생성
+        public Model CurModel
+        {
+            get => _model;
+        }
+
+        //#8_LIVE#1 LIVE 모드 프로퍼티
+        public bool LiveMode { get; set; } = false;
+
+
+
         public bool Initialize()
         {
             _imageSpace = new ImageSpace();
@@ -80,6 +91,9 @@ namespace JidamVision4.Core
             //#7_BINARY_PREVIEW#3 이진화 알고리즘과 프리뷰 변수 인스턴스 생성
             _blobAlgorithm = new BlobAlgorithm();
             _previewImage = new PreviewImage();
+
+            //#10_INSPWINDOW#10 모델 인스턴스 생성
+            _model = new Model();
 
             switch (_camType)
             {
