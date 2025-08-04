@@ -1,4 +1,5 @@
 ﻿using JidamVision4.Core;
+using JidamVision4.Setting;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -106,9 +107,17 @@ namespace JidamVision4
             }
         }
 
+        //#9_SETUP#1 환경설정창 실행
+        private void SetupMenuItem_Click(object sender, EventArgs e)
+        {
+            SetupForm setupForm = new SetupForm();
+            setupForm.ShowDialog();
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             Global.Inst.Dispose();
         }
+
     }
 }
