@@ -69,6 +69,9 @@ namespace JidamVision4.Teach
                 case InspectType.InspBinary:
                     inspAlgo = new BlobAlgorithm();
                     break;
+                case InspectType.InspMatch:
+                    inspAlgo = new MatchAlgorithm();
+                    break;
             }
 
             if (inspAlgo is null)
