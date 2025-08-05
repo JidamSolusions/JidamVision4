@@ -32,9 +32,12 @@ namespace JidamVision4.Teach
         public Rect InspArea { get; set; }
         public bool IsTeach { get; set; } = false;
 
+        //#12_MODEL SAVE#5 Xml Serialize를 위해서, Element을 명확하게 알려줘야 함        
+        [XmlElement("InspAlgorithm")]
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
 
-        //#11_MATCHING#1 패턴매칭에 필요한 티칭 이미지 관리 기능
+        //#12_MODEL SAVE#6 Xml Serialize를 하지 않도록 설정
+        [XmlIgnore]
         public List<Mat> _windowImages = new List<Mat>();
         public void AddWindowImage(Mat image)
         {
@@ -209,5 +212,69 @@ namespace JidamVision4.Teach
             AlgorithmList.ForEach(algo => algo.InspRect = algo.TeachRect + offset);
             return true;
         }
+
+        //#12_MODEL SAVE#1 InspWindow가 가지고 있는 이미지를 모델 폴더에 저장과 로딩
+        public virtual bool SaveInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+            if (!Directory.Exists(imgDir))
+            {
+                Directory.CreateDirectory(imgDir);
+            }
+
+            for (int i = 0; i < _windowImages.Count; i++)
+            {
+                Mat img = _windowImages[i];
+                if (img is null)
+                    continue;
+
+                string targetPath = Path.Combine(imgDir, $"{UID}_{i}.png");
+                Cv2.ImWrite(targetPath, img);
+            }
+
+            return true;
+        }
+
+        public virtual bool LoadInspWindow(Model curModel)
+        {
+            if (curModel is null)
+                return false;
+
+            string imgDir = Path.Combine(Path.GetDirectoryName(curModel.ModelPath), "Images");
+
+            foreach (InspAlgorithm algo in AlgorithmList)
+            {
+                if (algo is null)
+                    continue;
+
+                if (algo.InspectType == InspectType.InspMatch)
+                {
+                    MatchAlgorithm matchAlgo = algo as MatchAlgorithm;
+
+                    int i = 0;
+                    while (true)
+                    {
+                        string targetPath = Path.Combine(imgDir, $"{UID}_{i}.png");
+                        if (!File.Exists(targetPath))
+                            break;
+
+                        Mat windowImage = Cv2.ImRead(targetPath);
+                        if (windowImage != null)
+                        {
+                            AddWindowImage(windowImage);
+                        }
+
+                        i++;
+                    }
+                    IsPatternLearn = false;
+                }
+            }
+
+            return true;
+        }
+
     }
 }

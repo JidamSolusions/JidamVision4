@@ -117,6 +117,12 @@
     <Compile Include="ModelTreeForm.Designer.cs">
       <DependentUpon>ModelTreeForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewModel.Designer.cs">
+      <DependentUpon>NewModel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="PropertiesForm.cs">
       <SubType>Form</SubType>
@@ -207,6 +213,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ModelTreeForm.resx">
       <DependentUpon>ModelTreeForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewModel.resx">
+      <DependentUpon>NewModel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>

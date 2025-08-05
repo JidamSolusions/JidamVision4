@@ -21,6 +21,8 @@ namespace JidamVision4
 
         private void btnGrab_Click(object sender, EventArgs e)
         {
+            //#13_SET_IMAGE_BUFFER#3 그랩시 이미지 버퍼를 먼저 설정하도록 변경
+            Global.Inst.InspStage.CheckImageBuffer();
             Global.Inst.InspStage.Grab(0);
         }
 
@@ -37,6 +39,8 @@ namespace JidamVision4
 
             if (Global.Inst.InspStage.LiveMode)
             {
+                //#13_SET_IMAGE_BUFFER#4 그랩시 이미지 버퍼를 먼저 설정하도록 변경
+                Global.Inst.InspStage.CheckImageBuffer();
                 Global.Inst.InspStage.Grab(0);
             }
         }

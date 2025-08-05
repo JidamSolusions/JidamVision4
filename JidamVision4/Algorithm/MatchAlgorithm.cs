@@ -20,6 +20,8 @@ namespace JidamVision4.Algorithm
 
     public class MatchAlgorithm : InspAlgorithm
     {
+        //#12_MODEL SAVE#8 Xml 이미지는 Serialize 하지 않도록 설정
+        [XmlIgnore]
         private List<Mat> _templateImages = new List<Mat>();
 
         //찾을 이미지의 매칭율
