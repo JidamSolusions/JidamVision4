@@ -16,7 +16,7 @@ namespace JidamVision4
     /*
     #11_MODEL_TREE# - <<ROI를 관리하는 UI 구현>>> 
     모델 트리를 통해서, ROI를 추가하고, 관리하는 기능을 구현한다.
-    1) ModelTreeForm WinForm 생성 후, ModelTree Control을 추가한다.       
+    1) ModelTreeForm WinForm 생성 후, TreeView Control을 추가한다.       
     2) ModelTreeForm은 DockContent를 상속받아, MainForm에 도킹    
     2) #11_MODEL_TREE#1 ~ 3 구현
     */

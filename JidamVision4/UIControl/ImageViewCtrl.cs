@@ -151,6 +151,7 @@ namespace JidamVision4.UIControl
         {
             _newRoiType = inspWindowType;
             _selColor = GetWindowColor(inspWindowType);
+            Cursor = Cursors.Cross;
         }
 
         public Bitmap GetCurBitmap()
@@ -541,9 +542,6 @@ namespace JidamVision4.UIControl
             // 마우스 오른쪽 버튼이 눌렸을 때 클릭 위치 저장
             else if (e.Button == MouseButtons.Right)
             {
-                //같은 타입의 ROI추가가 더이상 없다면 초기화하여, ROI가 추가되지 않도록 함
-                _newRoiType = InspWindowType.None;
-
                 // UserControl이 포커스를 받아야 마우스 휠이 정상적으로 동작함
                 Focus();
             }
@@ -623,7 +621,7 @@ namespace JidamVision4.UIControl
             //마우스 클릭없이, 위치만 이동시에, 커서의 위치가 크기변경또는 이동 위치일때, 커서 변경
             else
             {
-                if (_selEntity != null)
+                if (_selEntity != null && _newRoiType == InspWindowType.None)
                 {
                     Rectangle screenRoi = VirtualToScreen(_roiRect);
                     Rectangle screenRect = VirtualToScreen(_selEntity.EntityROI);
@@ -638,7 +636,7 @@ namespace JidamVision4.UIControl
                     }
                     else
                     {
-                        Cursor = Cursors.Default;
+                        Cursor = Cursors.Arrow;
                     }
                 }
             }
@@ -740,11 +738,18 @@ namespace JidamVision4.UIControl
             // 마우스를 떼면 마지막 오프셋 값을 저장하여 이후 이동을 연속적으로 처리
             if (e.Button == MouseButtons.Right)
             {
-                if (_selEntity != null)
+                if (_newRoiType != InspWindowType.None)
+                {
+                    //같은 타입의 ROI추가가 더이상 없다면 초기화하여, ROI가 추가되지 않도록 함
+                    _newRoiType = InspWindowType.None;
+                }
+                else if (_selEntity != null)
                 {
                     //팝업메뉴 표시
                     _contextMenu.Show(this, e.Location);
                 }
+
+                Cursor = Cursors.Arrow;
             }
         }
 
