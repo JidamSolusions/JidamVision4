@@ -56,6 +56,9 @@
     <Reference Include="MvCameraControl.Net">
       <HintPath>..\ExternalLib\Dll\HikRobot\MvCameraControl.Net.dll</HintPath>
     </Reference>
+    <Reference Include="ObjectListView">
+      <HintPath>..\ExternalLib\Dll\ObjectListView\ObjectListView.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp">
       <HintPath>..\ExternalLib\Dll\OpenCv\OpenCvSharp.dll</HintPath>
     </Reference>
@@ -105,6 +108,7 @@
     <Compile Include="Grab\GrabModel.cs" />
     <Compile Include="Grab\HikRobotCam.cs" />
     <Compile Include="Grab\WebCam.cs" />
+    <Compile Include="Inspect\InspResult.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -155,6 +159,12 @@
     </Compile>
     <Compile Include="Property\MatchInspProp.Designer.cs">
       <DependentUpon>MatchInspProp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResultForm.Designer.cs">
+      <DependentUpon>ResultForm.cs</DependentUpon>
     </Compile>
     <Compile Include="RunForm.cs">
       <SubType>Form</SubType>
@@ -240,6 +250,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Property\MatchInspProp.resx">
       <DependentUpon>MatchInspProp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ResultForm.resx">
+      <DependentUpon>ResultForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RunForm.resx">
       <DependentUpon>RunForm.cs</DependentUpon>

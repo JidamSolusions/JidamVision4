@@ -1,5 +1,4 @@
-﻿using JidamVision4.Algorithm;
-using JidamVision4.Core;
+﻿using JidamVision4.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

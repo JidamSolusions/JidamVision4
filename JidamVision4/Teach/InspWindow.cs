@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using JidamVision4.Core;
+using JidamVision4.Inspect;
 
 namespace JidamVision4.Teach
 {
@@ -35,6 +36,9 @@ namespace JidamVision4.Teach
         //#12_MODEL SAVE#5 Xml Serialize를 위해서, Element을 명확하게 알려줘야 함        
         [XmlElement("InspAlgorithm")]
         public List<InspAlgorithm> AlgorithmList { get; set; } = new List<InspAlgorithm>();
+
+        //#13_INSP_RESULT#1 검사 결과를 저장하기 위한 리스트
+        public List<InspResult> InspResultList { get; set; } = new List<InspResult>();
 
         //#12_MODEL SAVE#6 Xml Serialize를 하지 않도록 설정
         [XmlIgnore]
@@ -92,7 +96,12 @@ namespace JidamVision4.Teach
             InspWindow cloneWindow = InspWindowFactory.Inst.Create(this.InspWindowType, false);
             cloneWindow.WindowArea = this.WindowArea + offset;
             cloneWindow.IsTeach = false;
-        
+
+            cloneWindow.IsPatternLearn = false;
+
+            foreach (var img in _windowImages.ToList())
+                cloneWindow._windowImages.Add(img?.Clone());
+
             foreach (InspAlgorithm algo in AlgorithmList)
             {
                 var cloneAlgo = algo.Clone();
@@ -276,5 +285,20 @@ namespace JidamVision4.Teach
             return true;
         }
 
+        //#13_INSP_RESULT#2 검사 결과를 초기화 및 추가 함수
+        public void ResetInspResult()
+        {
+            foreach (var algorithm in AlgorithmList)
+            {
+                algorithm.ResetResult();
+            }
+
+            InspResultList.Clear();
+        }
+
+        public void AddInspResult(InspResult inspResult)
+        {
+            InspResultList.Add(inspResult);
+        }
     }
 }

@@ -6,6 +6,17 @@ using System.Threading.Tasks;
 
 namespace JidamVision4.Core
 {
+    //#10_INSPWINDOW#1 검사 알고리즘 타입 추가
+    public enum InspectType
+    {
+        InspNone = -1,
+        InspBinary,
+        InspMatch,
+        InspFilter,
+        InspAIModule,
+        InspCount
+    }
+
     //#10_INSPWINDOW#4 InspWindow 정의
     public enum InspWindowType
     {

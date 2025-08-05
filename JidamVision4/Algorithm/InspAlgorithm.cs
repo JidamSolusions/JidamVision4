@@ -9,17 +9,6 @@ using System.Xml.Serialization;
 
 namespace JidamVision4.Algorithm
 {
-    //#10_INSPWINDOW#1 검사 알고리즘 타입 추가
-    public enum InspectType
-    {
-        InspNone = -1,
-        InspBinary,
-        InspMatch,
-        InspFilter,
-        InspAIModule,
-        InspCount
-    }
-
     //#12_MODEL SAVE#7 Xml Serialize를 위해서, 아래 코드 추가
     //XmlSerialize는 추상화된 상태를 알수 없어, 상속된 클래스를 명시적으로 포함해야 함.
     [XmlInclude(typeof(MatchAlgorithm))]
@@ -61,6 +50,7 @@ namespace JidamVision4.Algorithm
             target.IsInspected = this.IsInspected;
             target.TeachRect = this.TeachRect;
             target.InspRect = this.InspRect;
+            target.ImageChannel = this.ImageChannel;
             // NOTE: _srcImage 는 런타임 검사용이라 복사하지 않음
         }
 

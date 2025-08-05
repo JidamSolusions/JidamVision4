@@ -34,6 +34,21 @@ namespace JidamVision4.UIControl
         UpdateImage
     }
 
+    //#13_INSP_RESULT#3 검사 양불판정 갯수를 화면에 표시하기 위한 구조체
+    public struct InspectResultCount
+    {
+        public int Total { get; set; }
+        public int OK { get; set; }
+        public int NG { get; set; }
+
+        public InspectResultCount(int _totalCount, int _okCount, int _ngCount)
+        {
+            Total = _totalCount;
+            OK = _okCount;
+            NG = _ngCount;
+        }
+    }
+
     public partial class ImageViewCtrl: UserControl
     {
         //ROI를 추가,수정,삭제 등으로 변경 시, 이벤트 발생
@@ -64,6 +79,8 @@ namespace JidamVision4.UIControl
         //#8_INSPECT_BINARY#15 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
         private List<DrawInspectInfo> _rectInfos = new List<DrawInspectInfo>();
 
+        //#13_INSP_RESULT#4 검사 양불 판정 갯수를 화면에 표시하기 위한 변수
+        private InspectResultCount _inspectResultCount = new InspectResultCount();
 
         //#10_INSPWINDOW#15 ROI 편집에 필요한 변수 선언
         private Point _roiStart = Point.Empty;
@@ -434,6 +451,17 @@ namespace JidamVision4.UIControl
                         DrawText(g, infoText, textPos, fontSize, lineColor);
                     }
                 }
+            }
+
+            //#13_INSP_RESULT#5 검사 양불판정 갯수 화면에 표시
+            if (_inspectResultCount.Total > 0)
+            {
+                string resultText = $"Total: {_inspectResultCount.Total}\r\nOK: {_inspectResultCount.OK}\r\nNG: {_inspectResultCount.NG}";
+
+                float fontSize = 12.0f;
+                Color resultColor = Color.FromArgb(255, 255, 255);
+                PointF textPos = new PointF(Width - 80, 10);
+                DrawText(g, resultText, textPos, fontSize, resultColor);
             }
         }
 
@@ -990,6 +1018,91 @@ namespace JidamVision4.UIControl
         {
             _rectInfos.AddRange(rectInfos);
             Invalidate();
+        }
+
+        public void SetInspResultCount(InspectResultCount inspectResultCount)
+        {
+            _inspectResultCount = inspectResultCount;
+        }
+
+        //#13_INSP_RESULT#9 키보드 이벤트 받기 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            _isCtrlPressed = keyData == Keys.Control;
+
+            if (keyData == (Keys.Control | Keys.C))
+            {
+                CopySelectedROIs();
+            }
+            else if (keyData == (Keys.Control | Keys.V))
+            {
+                PasteROIsAt();
+            }
+            else
+            {
+                switch (keyData)
+                {
+                    case Keys.Delete:
+                        {
+                            if (_selEntity != null)
+                            {
+                                DeleteSelEntity();
+                            }
+                        }
+                        break;
+                    case Keys.Enter:
+                        {
+                            InspWindow selWindow = null;
+                            if (_selEntity != null)
+                                selWindow = _selEntity.LinkedWindow;
+
+                            DiagramEntityEvent?.Invoke(this, new DiagramEntityEventArgs(EntityActionType.Inspect, selWindow));
+                        }
+                        break;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+        // ─── 복사(Ctrl+C) ----------------------------------------------------------
+        private void CopySelectedROIs() // #ROI COPYPASTE#
+        {
+            _copyBuffer.Clear();
+            for (int i = 0; i < _multiSelectedEntities.Count; i++)
+            {
+                _copyBuffer.Add(_multiSelectedEntities[i]);
+            }
+        }
+
+        // ─── 붙여넣기(Ctrl+V) ------------------------------------------------------
+        private void PasteROIsAt() // #ROI COPYPASTE#
+        {
+            if (_copyBuffer.Count == 0)
+                return;
+
+            // ① 기준점(마우스)을 Virtual 좌표로 변환
+            PointF virtBase = ScreenToVirtual(_mousePos);
+
+            foreach (var entity in _copyBuffer)
+            {
+                int dx = (int)(virtBase.X - entity.EntityROI.Left + 0.5f);
+                int dy = (int)(virtBase.Y - entity.EntityROI.Top + 0.5f);
+                var newRect = entity.EntityROI;
+
+                DiagramEntityEvent?.Invoke(this,
+                    new DiagramEntityEventArgs(EntityActionType.Copy, entity.LinkedWindow,
+                                                entity.LinkedWindow?.InspWindowType ?? InspWindowType.None,
+                                                newRect, new Point(dx, dy)));
+            }
+            Invalidate();
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Control)
+                _isCtrlPressed = false;
+
+            base.OnKeyUp(e);
         }
 
         public void ResetEntity()

@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Runtime.InteropServices;
+using JidamVision4.Inspect;
 
 namespace JidamVision4.Core
 {
@@ -37,7 +38,7 @@ namespace JidamVision4.Core
         //private HikRobotCam _grabManager = null;
         private GrabModel _grabManager = null;
         private CameraType _camType = CameraType.WebCam;
-        
+
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
         //#7_BINARY_PREVIEW#1 이진화 프리뷰에 필요한 변수 선언
@@ -56,11 +57,12 @@ namespace JidamVision4.Core
 
         public SaigeAI AIModule
         {
-            get {
+            get
+            {
                 if (_saigeAI is null)
                     _saigeAI = new SaigeAI();
                 return _saigeAI;
-            }                
+            }
         }
 
         public PreviewImage PreView
@@ -198,7 +200,7 @@ namespace JidamVision4.Core
                 _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
             }
         }
-                
+
         public void CheckImageBuffer()
         {
             if (_grabManager != null && SettingXml.Inst.CamType != CameraType.None)
@@ -315,17 +317,20 @@ namespace JidamVision4.Core
         }
 
         //#10_INSPWINDOW#12 inspWindow에 대한 검사구현
+        //#13_INSP_RESULT#8 검사 결과를 출력하기 위해, 코드 수정
         public void TryInspection(InspWindow inspWindow = null)
         {
             if (inspWindow is null)
             {
-                if(_selectedInspWindow is null)
+                if (_selectedInspWindow is null)
                     return;
 
                 inspWindow = _selectedInspWindow;
             }
 
             UpdateDiagramEntity();
+
+            inspWindow.ResetInspResult();
 
             List<DrawInspectInfo> totalArea = new List<DrawInspectInfo>();
 
@@ -340,40 +345,50 @@ namespace JidamVision4.Core
                 inspAlgo.TeachRect = windowArea;
                 inspAlgo.InspRect = windowArea;
 
+                Mat srcImage = Global.Inst.InspStage.GetMat();
+                inspAlgo.SetInspData(srcImage);
+
+                if (!inspAlgo.DoInspect())
+                    continue;
+
+                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
+                int resultCnt = inspAlgo.GetResultRect(out resultArea);
+                if (resultCnt > 0)
+                {
+                    totalArea.AddRange(resultArea);
+                }
+
                 InspectType inspType = inspAlgo.InspectType;
+
+                string resultInfo = string.Join("\r\n", inspAlgo.ResultString);
+
+                InspResult inspResult = new InspResult
+                {
+                    ObjectID = inspWindow.UID,
+                    InspType = inspAlgo.InspectType,
+                    IsDefect = inspAlgo.IsDefect,
+                    ResultInfos = resultInfo
+                };
 
                 switch (inspType)
                 {
+                    case InspectType.InspMatch:
+                        {
+                            MatchAlgorithm matchAlgo = inspAlgo as MatchAlgorithm;
+                            inspResult.ResultValue = $"{matchAlgo.OutScore}";
+                            break;
+                        }
                     case InspectType.InspBinary:
                         {
                             BlobAlgorithm blobAlgo = (BlobAlgorithm)inspAlgo;
-
-                            Mat srcImage = Global.Inst.InspStage.GetMat();
-                            blobAlgo.SetInspData(srcImage);
-
-                            if(blobAlgo.DoInspect())
-                            {
-                                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-                                int resultCnt = blobAlgo.GetResultRect(out resultArea);
-                                if (resultCnt > 0)
-                                {
-                                    totalArea.AddRange(resultArea);
-                                }
-                            }
-
+                            int min = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].min;
+                            int max = blobAlgo.BlobFilters[blobAlgo.FILTER_COUNT].max;
+                            inspResult.ResultValue = $"{blobAlgo.OutBlobCount}/{min}~{max}";
                             break;
                         }
                 }
 
-                if (inspAlgo.DoInspect())
-                {
-                    List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-                    int resultCnt = inspAlgo.GetResultRect(out resultArea);
-                    if (resultCnt > 0)
-                    {
-                        totalArea.AddRange(resultArea);
-                    }
-                }
+                inspWindow.AddInspResult(inspResult);
             }
 
             if (totalArea.Count > 0)
@@ -384,6 +399,12 @@ namespace JidamVision4.Core
                 {
                     cameraForm.AddRect(totalArea);
                 }
+            }
+
+            ResultForm resultForm = MainForm.GetDockForm<ResultForm>();
+            if (resultForm != null)
+            {
+                resultForm.AddWindowResult(inspWindow);
             }
         }
 
@@ -474,7 +495,7 @@ namespace JidamVision4.Core
 
             inspWindow.WindowArea = rect;
             inspWindow.IsTeach = false;
-            
+
             UpdateProperty(inspWindow);
         }
 
@@ -641,7 +662,7 @@ namespace JidamVision4.Core
                         _saigeAI.Dispose();
                         _saigeAI = null;
                     }
-                    if(_grabManager != null)
+                    if (_grabManager != null)
                     {
                         _grabManager.Dispose();
                         _grabManager = null;

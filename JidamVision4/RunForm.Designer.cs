@@ -28,16 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RunForm));
             this.btnGrab = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
+            this.runImageList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
             // 
             // btnGrab
             // 
+            this.btnGrab.ImageIndex = 0;
+            this.btnGrab.ImageList = this.runImageList;
             this.btnGrab.Location = new System.Drawing.Point(12, 12);
             this.btnGrab.Name = "btnGrab";
-            this.btnGrab.Size = new System.Drawing.Size(92, 49);
+            this.btnGrab.Size = new System.Drawing.Size(92, 97);
             this.btnGrab.TabIndex = 0;
             this.btnGrab.Text = "촬상";
             this.btnGrab.UseVisualStyleBackColor = true;
@@ -45,9 +50,11 @@
             // 
             // btnStart
             // 
+            this.btnStart.ImageIndex = 2;
+            this.btnStart.ImageList = this.runImageList;
             this.btnStart.Location = new System.Drawing.Point(208, 12);
             this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(92, 49);
+            this.btnStart.Size = new System.Drawing.Size(92, 97);
             this.btnStart.TabIndex = 0;
             this.btnStart.Text = "검사";
             this.btnStart.UseVisualStyleBackColor = true;
@@ -55,19 +62,29 @@
             // 
             // btnLive
             // 
+            this.btnLive.ImageIndex = 1;
+            this.btnLive.ImageList = this.runImageList;
             this.btnLive.Location = new System.Drawing.Point(110, 12);
             this.btnLive.Name = "btnLive";
-            this.btnLive.Size = new System.Drawing.Size(92, 49);
+            this.btnLive.Size = new System.Drawing.Size(92, 97);
             this.btnLive.TabIndex = 0;
             this.btnLive.Text = "LIVE";
             this.btnLive.UseVisualStyleBackColor = true;
             this.btnLive.Click += new System.EventHandler(this.btnLive_Click);
             // 
+            // runImageList
+            // 
+            this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
+            this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.runImageList.Images.SetKeyName(0, "camera_color.png");
+            this.runImageList.Images.SetKeyName(1, "live-64.png");
+            this.runImageList.Images.SetKeyName(2, "start-64.png");
+            // 
             // RunForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(327, 72);
+            this.ClientSize = new System.Drawing.Size(327, 121);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.btnGrab);
@@ -82,5 +99,6 @@
         private System.Windows.Forms.Button btnGrab;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnLive;
+        private System.Windows.Forms.ImageList runImageList;
     }
 }
