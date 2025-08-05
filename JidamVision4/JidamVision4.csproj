@@ -90,6 +90,7 @@
     <Compile Include="Algorithm\BlobAlgorithm.cs" />
     <Compile Include="Algorithm\DrawInspectInfo.cs" />
     <Compile Include="Algorithm\InspAlgorithm.cs" />
+    <Compile Include="Algorithm\MatchAlgorithm.cs" />
     <Compile Include="CameraForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -143,6 +144,12 @@
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </Compile>
     <Compile Include="Inspect\SaigeAI.cs" />
+    <Compile Include="Property\MatchInspProp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Property\MatchInspProp.Designer.cs">
+      <DependentUpon>MatchInspProp.cs</DependentUpon>
+    </Compile>
     <Compile Include="RunForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,6 +184,12 @@
     </Compile>
     <Compile Include="UIControl\ImageViewCtrl.Designer.cs">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UIControl\PatternImageEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControl\PatternImageEditor.Designer.cs">
+      <DependentUpon>PatternImageEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="UIControl\RangeTrackbar.cs">
       <SubType>UserControl</SubType>
@@ -216,6 +229,9 @@
     <EmbeddedResource Include="Property\ImageFilterProp.resx">
       <DependentUpon>ImageFilterProp.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Property\MatchInspProp.resx">
+      <DependentUpon>MatchInspProp.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="RunForm.resx">
       <DependentUpon>RunForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -230,6 +246,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControl\PatternImageEditor.resx">
+      <DependentUpon>PatternImageEditor.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

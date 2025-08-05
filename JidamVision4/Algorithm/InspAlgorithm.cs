@@ -13,6 +13,7 @@ namespace JidamVision4.Algorithm
     {
         InspNone = -1,
         InspBinary,
+        InspMatch,
         InspFilter,
         InspAIModule,
         InspCount
@@ -31,6 +32,8 @@ namespace JidamVision4.Algorithm
         //#8_INSPECT_BINARY#1 검사할 영역 정보를 저장하는 변수
         public Rect TeachRect { get; set; }
         public Rect InspRect { get; set; }
+
+        public eImageChannel ImageChannel { get; set; } = eImageChannel.Gray;
 
         //검사할 원본 이미지
         protected Mat _srcImage = null;

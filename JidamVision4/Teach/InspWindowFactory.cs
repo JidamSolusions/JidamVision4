@@ -54,17 +54,21 @@ namespace JidamVision4.Teach
             return inspWindow;
         }
 
+        //#11_MATCHING#4 각 ROI에 매칭 알고리즘 추가
         private bool AddInspAlgorithm(InspWindow inspWindow)
         {
             switch (inspWindow.InspWindowType)
             {
                 case InspWindowType.Base:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
                 case InspWindowType.Body:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
                 case InspWindowType.Sub:
+                    inspWindow.AddInspAlgorithm(InspectType.InspMatch);
                     inspWindow.AddInspAlgorithm(InspectType.InspBinary);
                     break;
             }

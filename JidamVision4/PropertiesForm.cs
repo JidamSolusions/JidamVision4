@@ -81,6 +81,12 @@ namespace JidamVision4
                     //blobProp.PropertyChanged += PropertyChanged;
                     curProp = blobProp;
                     break;
+                //#11_MATCHING#5 패턴매칭 속성창 추가
+                case InspectType.InspMatch:
+                    MatchInspProp matchProp = new MatchInspProp();
+                    matchProp.PropertyChanged += PropertyChanged;
+                    curProp = matchProp;
+                    break;
                 case InspectType.InspFilter:
                     ImageFilterProp filterProp = new ImageFilterProp();
                     curProp = filterProp;
@@ -128,6 +134,16 @@ namespace JidamVision4
                             continue;
 
                         binaryProp.SetAlgorithm(blobAlgo);
+                    }
+                    else if (uc is MatchInspProp matchProp)
+                    {
+                        MatchAlgorithm matchAlgo = (MatchAlgorithm)window.FindInspAlgorithm(InspectType.InspMatch);
+                        if (matchAlgo is null)
+                            continue;
+
+                        window.PatternLearn();
+
+                        matchProp.SetAlgorithm(matchAlgo);
                     }
                 }
             }

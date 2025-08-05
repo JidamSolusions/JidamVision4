@@ -74,6 +74,11 @@ namespace JidamVision4
             imageViewer.LoadBitmap((Bitmap)bitmap);
         }
 
+        public Mat GetDisplayImage()
+        {
+            return Global.Inst.InspStage.ImageSpace.GetMat();
+        }
+
         private void CameraForm_Resize(object sender, EventArgs e)
         {
             int margin = 0;
@@ -102,18 +107,9 @@ namespace JidamVision4
             Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
-        public Bitmap GetDisplayImage()
-        {
-            Bitmap curImage = null;
-
-            if (imageViewer != null)
-                curImage = imageViewer.GetCurBitmap();
-
-            return curImage;
-        }
-
         public void UpdateImageViewer()
         {
+            imageViewer.UpdateInspParam();
             imageViewer.Invalidate();
         }
 
