@@ -59,6 +59,9 @@ namespace JidamVision4
 
             //#6_INSP_STAGE#1 전역 인스턴스 초기화
             Global.Inst.Initialize();
+
+            //#15_INSP_WORKER#2 연속 검사 모드 설정값 로딩
+            LoadSetting();
         }
 
         //#2_DOCKPANEL#5 도킹 윈도우를 로드하는 메서드
@@ -90,6 +93,10 @@ namespace JidamVision4
             //#14_LOGFORM#2 로그창 추가
             var logWindow = new LogForm();
             logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
+        }
+        private void LoadSetting()
+        {
+            cycleModeMenuItem.Checked = SettingXml.Inst.CycleMode;
         }
 
         //#2_DOCKPANEL#6 쉽게 도킹패널에 접근하기 위한 정적 함수
@@ -204,6 +211,14 @@ namespace JidamVision4
                     Global.Inst.InspStage.SaveModel(filePath);
                 }
             }
+        }
+
+        //#15_INSP_WORKER#3 Cycle 모드 설정
+        private void cycleModeMenuItem_Click(object sender, EventArgs e)
+        {
+            // 현재 체크 상태 확인
+            bool isChecked = cycleModeMenuItem.Checked;
+            SettingXml.Inst.CycleMode = isChecked;
         }
     }
 }

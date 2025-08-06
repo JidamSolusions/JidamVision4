@@ -154,7 +154,7 @@ namespace JidamVision4
             imageViewer.ResetEntity();
         }
 
-        //FIXME 검사 결과를 그래픽으로 출력하기 위한 정보를 받는 함수
+        //검사 결과를 그래픽으로 출력하기 위한 정보를 받는 함수
         public void AddRect(List<DrawInspectInfo> rectInfos)
         {
             imageViewer.AddRect(rectInfos);
@@ -172,5 +172,27 @@ namespace JidamVision4
             imageViewer.SetInspResultCount(new InspectResultCount(totalArea, okCnt, ngCnt));
         }
 
+        //#17_WORKING_STATE#5 작업 상태 화면 표시 설정
+        public void SetWorkingState(WorkingState workingState)
+        {
+            string state = "";
+            switch (workingState)
+            {
+                case WorkingState.INSPECT:
+                    state = "INSPECT";
+                    break;
+
+                case WorkingState.LIVE:
+                    state = "LIVE";
+                    break;
+
+                case WorkingState.ALARM:
+                    state = "ALARM";
+                    break;
+            }
+
+            imageViewer.WorkingState = state;
+            imageViewer.Invalidate();
+        }
     }
 }

@@ -31,9 +31,10 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RunForm));
             this.btnGrab = new System.Windows.Forms.Button();
+            this.runImageList = new System.Windows.Forms.ImageList(this.components);
             this.btnStart = new System.Windows.Forms.Button();
             this.btnLive = new System.Windows.Forms.Button();
-            this.runImageList = new System.Windows.Forms.ImageList(this.components);
+            this.btnStop = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnGrab
@@ -47,6 +48,15 @@
             this.btnGrab.Text = "촬상";
             this.btnGrab.UseVisualStyleBackColor = true;
             this.btnGrab.Click += new System.EventHandler(this.btnGrab_Click);
+            // 
+            // runImageList
+            // 
+            this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
+            this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.runImageList.Images.SetKeyName(0, "camera_color.png");
+            this.runImageList.Images.SetKeyName(1, "live-64.png");
+            this.runImageList.Images.SetKeyName(2, "start-64.png");
+            this.runImageList.Images.SetKeyName(3, "stop-64.png");
             // 
             // btnStart
             // 
@@ -72,19 +82,24 @@
             this.btnLive.UseVisualStyleBackColor = true;
             this.btnLive.Click += new System.EventHandler(this.btnLive_Click);
             // 
-            // runImageList
+            // btnStop
             // 
-            this.runImageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("runImageList.ImageStream")));
-            this.runImageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.runImageList.Images.SetKeyName(0, "camera_color.png");
-            this.runImageList.Images.SetKeyName(1, "live-64.png");
-            this.runImageList.Images.SetKeyName(2, "start-64.png");
+            this.btnStop.ImageIndex = 3;
+            this.btnStop.ImageList = this.runImageList;
+            this.btnStop.Location = new System.Drawing.Point(306, 12);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(92, 97);
+            this.btnStop.TabIndex = 1;
+            this.btnStop.Text = "검사";
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // RunForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(327, 121);
+            this.ClientSize = new System.Drawing.Size(407, 121);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnLive);
             this.Controls.Add(this.btnGrab);
@@ -100,5 +115,6 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnLive;
         private System.Windows.Forms.ImageList runImageList;
+        private System.Windows.Forms.Button btnStop;
     }
 }

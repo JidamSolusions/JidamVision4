@@ -23,7 +23,8 @@ namespace JidamVision4.Core
         None = 0,
         Base,
         Body,
-        Sub
+        Sub,
+        ID
     }
 
     public enum DecisionType
@@ -34,6 +35,16 @@ namespace JidamVision4.Core
         Info,
         Error,          //오류
         Timeout         //타임아웃
+    }
+
+    //#17_WORKING_STATE#1 작업 상태 정의
+
+    public enum WorkingState
+    {
+        NONE = 0,
+        INSPECT,
+        LIVE,
+        ALARM
     }
 
     public static class Define

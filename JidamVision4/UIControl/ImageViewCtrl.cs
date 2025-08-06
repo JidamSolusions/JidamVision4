@@ -79,6 +79,9 @@ namespace JidamVision4.UIControl
         //#8_INSPECT_BINARY#15 템플릿 매칭 결과 출력을 위해 Rectangle 리스트 변수 설정
         private List<DrawInspectInfo> _rectInfos = new List<DrawInspectInfo>();
 
+        //#17_WORKING_STATE#3 작업 상태 변수
+        public string WorkingState { get; set; } = "";
+
         //#13_INSP_RESULT#4 검사 양불 판정 갯수를 화면에 표시하기 위한 변수
         private InspectResultCount _inspectResultCount = new InspectResultCount();
 
@@ -117,6 +120,8 @@ namespace JidamVision4.UIControl
         //팝업 메뉴
         private ContextMenuStrip _contextMenu;
 
+        private readonly object _lock = new object();
+
         public ImageViewCtrl()
         {
             InitializeComponent();
@@ -152,11 +157,14 @@ namespace JidamVision4.UIControl
                 case InspWindowType.Base:
                     color = Color.LightBlue;
                     break;
+                case InspWindowType.Body:
+                    color = Color.Yellow;
+                    break;
                 case InspWindowType.Sub:
                     color = Color.Orange;
                     break;
-                case InspWindowType.Body:
-                    color = Color.Yellow;
+                case InspWindowType.ID:
+                    color = Color.Magenta;
                     break;
             }
 
@@ -195,12 +203,20 @@ namespace JidamVision4.UIControl
         //#4_IMAGE_VIEWER#5 이미지 로딩 함수
         public void LoadBitmap(Bitmap bitmap)
         {
+            //#15_INSP_WORKER#9 스레드에서 검사시, 멈추는 현상 방지
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke(new Action<Bitmap>(LoadBitmap), bitmap);
+                return;
+            }
+
             // 기존에 로드된 이미지가 있다면 해제 후 초기화, 메모리누수 방지
             if (_bitmapImage != null)
             {
                 //이미지 크기가 같다면, 이미지 변경 후, 화면 갱신
                 if (_bitmapImage.Width == bitmap.Width && _bitmapImage.Height == bitmap.Height)
                 {
+                    _bitmapImage.Dispose();   // 기존 이미지 해제 후 교체
                     _bitmapImage = bitmap;
                     Invalidate();
                     return;
@@ -390,67 +406,18 @@ namespace JidamVision4.UIControl
                 }
             }
 
-            // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
-            if (_rectInfos != null)
+            lock (_lock)
             {
-                foreach (DrawInspectInfo rectInfo in _rectInfos)
-                {
-                    Color lineColor = Color.LightCoral;
-                    if (rectInfo.decision == DecisionType.Defect)
-                        lineColor = Color.Red;
-                    else if (rectInfo.decision == DecisionType.Good)
-                        lineColor = Color.LightGreen;
+                DrawRectInfo(g);
+            }
 
-                    Rectangle rect = new Rectangle(rectInfo.rect.X, rectInfo.rect.Y, rectInfo.rect.Width, rectInfo.rect.Height);
-                    Rectangle screenRect = VirtualToScreen(rect);
-
-                    using (Pen pen = new Pen(lineColor, 2))
-                    {
-                        if (rectInfo.UseRotatedRect)
-                        {
-                            PointF[] screenPoints = rectInfo.rotatedPoints
-                                                    .Select(p => VirtualToScreen(new PointF(p.X, p.Y))) // 화면 좌표계로 변환
-                                                    .ToArray();
-
-                            if (screenPoints.Length == 4)
-                            {
-                                for (int i = 0; i < 4; i++)
-                                {
-                                    g.DrawLine(pen, screenPoints[i], screenPoints[(i + 1) % 4]); // 시계방향으로 선 연결
-                                }
-                            }
-                        }
-                        else
-                        {
-                            g.DrawRectangle(pen, screenRect);
-                        }
-                    }
-
-                    if (rectInfo.info != "")
-                    {
-                        float baseFontSize = 20.0f;
-
-                        if (rectInfo.decision == DecisionType.Info)
-                        {
-                            baseFontSize = 3.0f;
-                            lineColor = Color.LightBlue;
-                        }
-
-                        float fontSize = baseFontSize * _curZoom;
-
-                        // 스코어 문자열 그리기 (우상단)
-                        string infoText = rectInfo.info;
-                        PointF textPos = new PointF(screenRect.Left, screenRect.Top); // 위로 약간 띄우기
-
-                        if (rectInfo.inspectType == InspectType.InspBinary
-                            && rectInfo.decision != DecisionType.Info)
-                        {
-                            textPos.Y = screenRect.Bottom - fontSize;
-                        }
-
-                        DrawText(g, infoText, textPos, fontSize, lineColor);
-                    }
-                }
+            //#17_WORKING_STATE#4 작업 상태 화면에 표시
+            if (WorkingState != "")
+            {
+                float fontSize = 20.0f;
+                Color stateColor = Color.FromArgb(255, 128, 0);
+                PointF textPos = new PointF(10, 10);
+                DrawText(g, WorkingState, textPos, fontSize, stateColor);
             }
 
             //#13_INSP_RESULT#5 검사 양불판정 갯수 화면에 표시
@@ -462,6 +429,71 @@ namespace JidamVision4.UIControl
                 Color resultColor = Color.FromArgb(255, 255, 255);
                 PointF textPos = new PointF(Width - 80, 10);
                 DrawText(g, resultText, textPos, fontSize, resultColor);
+            }
+        }
+        private void DrawRectInfo(Graphics g)
+        {
+            if (_rectInfos == null || _rectInfos.Count <= 0)
+                return;
+
+            // 이미지 좌표 → 화면 좌표 변환 후 사각형 그리기
+            foreach (DrawInspectInfo rectInfo in _rectInfos)
+            {
+                Color lineColor = Color.LightCoral;
+                if (rectInfo.decision == DecisionType.Defect)
+                    lineColor = Color.Red;
+                else if (rectInfo.decision == DecisionType.Good)
+                    lineColor = Color.LightGreen;
+
+                Rectangle rect = new Rectangle(rectInfo.rect.X, rectInfo.rect.Y, rectInfo.rect.Width, rectInfo.rect.Height);
+                Rectangle screenRect = VirtualToScreen(rect);
+
+                using (Pen pen = new Pen(lineColor, 2))
+                {
+                    if (rectInfo.UseRotatedRect)
+                    {
+                        PointF[] screenPoints = rectInfo.rotatedPoints
+                                                .Select(p => VirtualToScreen(new PointF(p.X, p.Y))) // 화면 좌표계로 변환
+                                                .ToArray();
+
+                        if (screenPoints.Length == 4)
+                        {
+                            for (int i = 0; i < 4; i++)
+                            {
+                                g.DrawLine(pen, screenPoints[i], screenPoints[(i + 1) % 4]); // 시계방향으로 선 연결
+                            }
+                        }
+                    }
+                    else
+                    {
+                        g.DrawRectangle(pen, screenRect);
+                    }
+                }
+
+                if (rectInfo.info != "")
+                {
+                    float baseFontSize = 20.0f;
+
+                    if (rectInfo.decision == DecisionType.Info)
+                    {
+                        baseFontSize = 3.0f;
+                        lineColor = Color.LightBlue;
+                    }
+
+                    float fontSize = baseFontSize * _curZoom;
+
+                    // 스코어 문자열 그리기 (우상단)
+                    string infoText = rectInfo.info;
+                    PointF textPos = new PointF(screenRect.Left, screenRect.Top); // 위로 약간 띄우기
+
+                    if (rectInfo.inspectType == InspectType.InspBinary
+                        && rectInfo.decision != DecisionType.Info)
+                    {
+                        textPos.Y = screenRect.Bottom - fontSize;
+                    }
+
+                    DrawText(g, infoText, textPos, fontSize, lineColor);
+                }
             }
         }
 
@@ -1016,8 +1048,11 @@ namespace JidamVision4.UIControl
         //#8_INSPECT_BINARY#17 화면에 보여줄 영역 정보를 표시하기 위해, 위치 입력 받는 함수
         public void AddRect(List<DrawInspectInfo> rectInfos)
         {
-            _rectInfos.AddRange(rectInfos);
-            Invalidate();
+            lock (_lock)
+            {
+                _rectInfos.AddRange(rectInfos);
+                Invalidate();
+            }
         }
 
         public void SetInspResultCount(InspectResultCount inspectResultCount)
@@ -1107,7 +1142,10 @@ namespace JidamVision4.UIControl
 
         public void ResetEntity()
         {
-            _rectInfos.Clear();
+            lock (_lock)
+            {
+                _rectInfos.Clear();
+            }
             Invalidate();
         }
 
