@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using JidamVision4.Util;
 
 namespace JidamVision4.Setting
 {
@@ -35,6 +36,8 @@ namespace JidamVision4.Setting
 
             //환경설정 저장
             SettingXml.Save();
+
+            SLogger.Write($"경로 설정 저장");
         }
 
 

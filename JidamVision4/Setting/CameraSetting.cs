@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision4.Grab;
+using JidamVision4.Util;
 
 namespace JidamVision4.Setting
 {
@@ -50,6 +51,8 @@ namespace JidamVision4.Setting
             SettingXml.Inst.CamType = (CameraType)cbCameraType.SelectedIndex;
             //환경설정 저장
             SettingXml.Save();
+
+            SLogger.Write($"카메라 설정 저장");
         }
 
         private void btnApply_Click(object sender, EventArgs e)

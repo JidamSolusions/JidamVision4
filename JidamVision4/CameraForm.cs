@@ -2,6 +2,7 @@
 using JidamVision4.Core;
 using JidamVision4.Teach;
 using JidamVision4.UIControl;
+using JidamVision4.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,7 @@ namespace JidamVision4
 
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
         {
+            SLogger.Write($"ImageViewer Action {e.ActionType.ToString()}");
             switch (e.ActionType)
             {
                 case EntityActionType.Select:

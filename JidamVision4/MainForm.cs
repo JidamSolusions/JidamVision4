@@ -1,6 +1,7 @@
 ﻿using JidamVision4.Core;
 using JidamVision4.Setting;
 using JidamVision4.Teach;
+using JidamVision4.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -85,6 +86,10 @@ namespace JidamVision4
             //속성창 추가
             var propWindow = new PropertiesForm();
             propWindow.Show(_dockPanel, DockState.DockRight);
+
+            //#14_LOGFORM#2 로그창 추가
+            var logWindow = new LogForm();
+            logWindow.Show(propWindow.Pane, DockAlignment.Bottom, 0.3);
         }
 
         //#2_DOCKPANEL#6 쉽게 도킹패널에 접근하기 위한 정적 함수
@@ -120,6 +125,7 @@ namespace JidamVision4
         //#9_SETUP#1 환경설정창 실행
         private void SetupMenuItem_Click(object sender, EventArgs e)
         {
+            SLogger.Write($"환경설정창 열기");
             SetupForm setupForm = new SetupForm();
             setupForm.ShowDialog();
         }

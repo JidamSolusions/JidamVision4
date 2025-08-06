@@ -1,4 +1,5 @@
 ﻿using JidamVision4.Core;
+using JidamVision4.Util;
 using OpenCvSharp;
 using System;
 using System.Collections.Generic;
@@ -119,7 +120,7 @@ namespace JidamVision4.Algorithm
             OutScore = (int)(maxScore * 100);
             OutPoint = maxLoc + leftTopPos;
 
-            Console.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
+            SLogger.Write($"최적 매칭 위치: {maxLoc}, 신뢰도: {maxScore:F2}");
 
             return true;
         }
@@ -354,7 +355,7 @@ namespace JidamVision4.Algorithm
 
             foreach (var point in OutPoints)
             {
-                Console.Write($"매칭된 위치: {OutPoints}");
+                SLogger.Write($"매칭된 위치: {OutPoints}");
                 resultArea.Add(new DrawInspectInfo(new Rect(point.X, point.Y, _templateImages[0].Width, _templateImages[0].Height),
                     info, InspectType.InspMatch, decisionType));
             }

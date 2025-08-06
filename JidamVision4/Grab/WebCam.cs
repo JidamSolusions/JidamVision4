@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using JidamVision4.Util;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,10 +47,10 @@ namespace JidamVision4.Grab
                     {
                         Marshal.Copy(_frame.Data, _userImageBuffer[BufferIndex].ImageBuffer, 0, bufSize); // Mat의 데이터를 byte 배열로 복사
                     }
-                    //else
-                    //{
-                    //    SLogger.Write("Error: Buffer size is too small.", SLogger.LogType.Error);
-                    //}
+                    else
+                    {
+                        SLogger.Write("Error: Buffer size is too small.", SLogger.LogType.Error);
+                    }
                 }
 
                 OnTransferCompleted(BufferIndex);

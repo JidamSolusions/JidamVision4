@@ -1,4 +1,5 @@
-﻿using System;
+﻿using JidamVision4.Util;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -119,6 +120,8 @@ namespace JidamVision4.Grab
 
         internal bool InitGrab()
         {
+            SLogger.Write("Grab 초기화 시작!");
+
             if (!Create())
                 return false;
 
@@ -128,6 +131,7 @@ namespace JidamVision4.Grab
                     return false;
             }
 
+            SLogger.Write("Grab 초기화 성공!");
             return true;
         }
 
