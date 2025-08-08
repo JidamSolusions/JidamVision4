@@ -32,7 +32,9 @@
         private void InitializeComponent()
         {
             this.grpBinary = new System.Windows.Forms.GroupBox();
+            this.cbChannel = new System.Windows.Forms.ComboBox();
             this.cbHighlight = new System.Windows.Forms.ComboBox();
+            this.lbChannel = new System.Windows.Forms.Label();
             this.lbHighlight = new System.Windows.Forms.Label();
             this.chkUse = new System.Windows.Forms.CheckBox();
             this.chkRotatedRect = new System.Windows.Forms.CheckBox();
@@ -46,30 +48,51 @@
             // 
             // grpBinary
             // 
+            this.grpBinary.Controls.Add(this.cbChannel);
             this.grpBinary.Controls.Add(this.cbHighlight);
+            this.grpBinary.Controls.Add(this.lbChannel);
             this.grpBinary.Controls.Add(this.lbHighlight);
             this.grpBinary.Controls.Add(this.binRangeTrackbar);
             this.grpBinary.Location = new System.Drawing.Point(11, 36);
             this.grpBinary.Name = "grpBinary";
-            this.grpBinary.Size = new System.Drawing.Size(250, 90);
+            this.grpBinary.Size = new System.Drawing.Size(250, 121);
             this.grpBinary.TabIndex = 0;
             this.grpBinary.TabStop = false;
             this.grpBinary.Text = "이진화";
+            // 
+            // cbChannel
+            // 
+            this.cbChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbChannel.FormattingEnabled = true;
+            this.cbChannel.Location = new System.Drawing.Point(77, 53);
+            this.cbChannel.Name = "cbChannel";
+            this.cbChannel.Size = new System.Drawing.Size(117, 20);
+            this.cbChannel.TabIndex = 2;
+            this.cbChannel.SelectedIndexChanged += new System.EventHandler(this.cbChannel_SelectedIndexChanged);
             // 
             // cbHighlight
             // 
             this.cbHighlight.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbHighlight.FormattingEnabled = true;
-            this.cbHighlight.Location = new System.Drawing.Point(77, 59);
+            this.cbHighlight.Location = new System.Drawing.Point(77, 88);
             this.cbHighlight.Name = "cbHighlight";
             this.cbHighlight.Size = new System.Drawing.Size(117, 20);
             this.cbHighlight.TabIndex = 2;
             this.cbHighlight.SelectedIndexChanged += new System.EventHandler(this.cbHighlight_SelectedIndexChanged);
             // 
+            // lbChannel
+            // 
+            this.lbChannel.AutoSize = true;
+            this.lbChannel.Location = new System.Drawing.Point(6, 59);
+            this.lbChannel.Name = "lbChannel";
+            this.lbChannel.Size = new System.Drawing.Size(69, 12);
+            this.lbChannel.TabIndex = 7;
+            this.lbChannel.Text = "이미지 채널";
+            // 
             // lbHighlight
             // 
             this.lbHighlight.AutoSize = true;
-            this.lbHighlight.Location = new System.Drawing.Point(6, 65);
+            this.lbHighlight.Location = new System.Drawing.Point(6, 94);
             this.lbHighlight.Name = "lbHighlight";
             this.lbHighlight.Size = new System.Drawing.Size(65, 12);
             this.lbHighlight.TabIndex = 7;
@@ -93,7 +116,7 @@
             this.chkRotatedRect.AutoSize = true;
             this.chkRotatedRect.Checked = true;
             this.chkRotatedRect.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkRotatedRect.Location = new System.Drawing.Point(19, 289);
+            this.chkRotatedRect.Location = new System.Drawing.Point(19, 319);
             this.chkRotatedRect.Name = "chkRotatedRect";
             this.chkRotatedRect.Size = new System.Drawing.Size(84, 16);
             this.chkRotatedRect.TabIndex = 14;
@@ -105,7 +128,7 @@
             // 
             this.cbBinMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbBinMethod.FormattingEnabled = true;
-            this.cbBinMethod.Location = new System.Drawing.Point(87, 133);
+            this.cbBinMethod.Location = new System.Drawing.Point(87, 163);
             this.cbBinMethod.Name = "cbBinMethod";
             this.cbBinMethod.Size = new System.Drawing.Size(118, 20);
             this.cbBinMethod.TabIndex = 12;
@@ -114,7 +137,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(16, 137);
+            this.label1.Location = new System.Drawing.Point(16, 167);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(57, 12);
             this.label1.TabIndex = 13;
@@ -123,7 +146,7 @@
             // dataGridViewFilter
             // 
             this.dataGridViewFilter.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewFilter.Location = new System.Drawing.Point(11, 165);
+            this.dataGridViewFilter.Location = new System.Drawing.Point(11, 195);
             this.dataGridViewFilter.Name = "dataGridViewFilter";
             this.dataGridViewFilter.RowTemplate.Height = 23;
             this.dataGridViewFilter.Size = new System.Drawing.Size(250, 118);
@@ -151,7 +174,7 @@
             this.Controls.Add(this.chkUse);
             this.Controls.Add(this.grpBinary);
             this.Name = "BinaryProp";
-            this.Size = new System.Drawing.Size(272, 322);
+            this.Size = new System.Drawing.Size(272, 404);
             this.grpBinary.ResumeLayout(false);
             this.grpBinary.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewFilter)).EndInit();
@@ -171,5 +194,7 @@
         private System.Windows.Forms.ComboBox cbBinMethod;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.DataGridView dataGridViewFilter;
+        private System.Windows.Forms.ComboBox cbChannel;
+        private System.Windows.Forms.Label lbChannel;
     }
 }
