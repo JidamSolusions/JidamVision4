@@ -130,7 +130,7 @@ namespace JidamVision4.Core
             _imageLoader = new ImageLoader();
 
             //#16_LAST_MODELOPEN#2 REGISTRY 키 생성
-            _regKey = Registry.CurrentUser.CreateSubKey("Software\\MoldVisionJ");
+            _regKey = Registry.CurrentUser.CreateSubKey("Software\\JidamVision");
 
             //#10_INSPWINDOW#10 모델 인스턴스 생성
             _model = new Model();
@@ -196,6 +196,10 @@ namespace JidamVision4.Core
 
             SetBuffer(bufferCount);
 
+            //#18_IMAGE_CHANNEL#7 카메라 칼라 여부에 따라, 기본 채널 설정
+            eImageChannel imageChannel = (pixelBpp == 24) ? eImageChannel.Color : eImageChannel.Gray;
+            SetImageChannel(imageChannel);
+            
             //_grabManager.SetExposureTime(25000);
         }
 
@@ -247,12 +251,6 @@ namespace JidamVision4.Core
             _imageSpace.Split(bufferIndex);
 
             DisplayGrabImage(bufferIndex);
-
-            if (_previewImage != null)
-            {
-                Bitmap bitmap = ImageSpace.GetBitmap(0);
-                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
-            }
         }
 
         public void CheckImageBuffer()
@@ -346,6 +344,11 @@ namespace JidamVision4.Core
             MatchAlgorithm matchAlgo = (MatchAlgorithm)inspWindow.FindInspAlgorithm(InspectType.InspMatch);
             if (matchAlgo != null)
             {
+                //#18_IMAGE_CHANNEL#8 패턴매칭 이미지 채널 설정, 칼라인 경우 그레이로 변경
+                matchAlgo.ImageChannel = SelImageChannel;
+                if (matchAlgo.ImageChannel == eImageChannel.Color)
+                    matchAlgo.ImageChannel = eImageChannel.Gray;
+
                 UpdateProperty(inspWindow);
             }
         }
@@ -506,12 +509,6 @@ namespace JidamVision4.Core
 
             DisplayGrabImage(bufferIndex);
 
-            if (_previewImage != null)
-            {
-                Bitmap bitmap = ImageSpace.GetBitmap(0);
-                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
-            }
-
             //#8_LIVE#2 LIVE 모드일때, Grab을 계속 실행하여, 반복되도록 구현
             //이 함수는 await를 사용하여 비동기적으로 실행되어, 함수를 async로 선언해야 합니다.
             if (LiveMode)
@@ -540,12 +537,42 @@ namespace JidamVision4.Core
             }
         }
 
-        public Bitmap GetBitmap(int bufferIndex = -1)
+        //#18_IMAGE_CHANNEL#6 프리뷰 이미지 채널을 설정하는 함수
+        public void SetPreviewImage(eImageChannel channel)
         {
+            if (_previewImage is null)
+                return;
+
+            Bitmap bitmap = ImageSpace.GetBitmap(0, channel);
+            _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+
+            SetImageChannel(channel);
+        }
+
+        //#18_IMAGE_CHANNEL#5 이미지 채널을 설정하는 함수
+        public void SetImageChannel(eImageChannel channel)
+        {
+            var cameraForm = MainForm.GetDockForm<CameraForm>();
+            if (cameraForm != null)
+            {
+                cameraForm.SetImageChannel(channel);
+            }
+        }
+
+        //비트맵 이미지 요청시, 이미지 채널이 있다면 SelImageChangel에 설정
+        public Bitmap GetBitmap(int bufferIndex = -1, eImageChannel imageChannel = eImageChannel.None)
+        {
+            if (bufferIndex >= 0)
+                SelBufferIndex = bufferIndex;
+
+            //#BINARY FILTER#13 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
+            if (imageChannel != eImageChannel.None)
+                SelImageChannel = imageChannel;
+
             if (Global.Inst.InspStage.ImageSpace is null)
                 return null;
 
-            return Global.Inst.InspStage.ImageSpace.GetBitmap();
+            return Global.Inst.InspStage.ImageSpace.GetBitmap(SelBufferIndex, SelImageChannel);
         }
 
         //#7_BINARY_PREVIEW#4 이진화 프리뷰를 위해, ImageSpace에서 이미지 가져오기
@@ -554,11 +581,7 @@ namespace JidamVision4.Core
             if (bufferIndex >= 0)
                 SelBufferIndex = bufferIndex;
 
-            //#BINARY FILTER#14 채널 정보가 유지되도록, eImageChannel.None 타입을 추가
-            if (imageChannel != eImageChannel.None)
-                SelImageChannel = imageChannel;
-
-            return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, SelImageChannel);
+            return Global.Inst.InspStage.ImageSpace.GetMat(SelBufferIndex, imageChannel);
         }
 
         //#10_INSPWINDOW#14 변경된 모델 정보 갱신하여, ImageViewer와 모델트리에 반영
@@ -599,7 +622,7 @@ namespace JidamVision4.Core
         public bool LoadModel(string filePath)
         {
             SLogger.Write($"모델 로딩:{filePath}");
-                
+
             _model = _model.Load(filePath);
 
             if (_model is null)

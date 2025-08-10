@@ -225,6 +225,12 @@
     <Compile Include="UIControl\ImageViewCtrl.Designer.cs">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIControl\MainViewToolbar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UIControl\MainViewToolbar.Designer.cs">
+      <DependentUpon>MainViewToolbar.cs</DependentUpon>
+    </Compile>
     <Compile Include="UIControl\PatternImageEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -301,6 +307,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\ImageViewCtrl.resx">
       <DependentUpon>ImageViewCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UIControl\MainViewToolbar.resx">
+      <DependentUpon>MainViewToolbar.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UIControl\PatternImageEditor.resx">
       <DependentUpon>PatternImageEditor.cs</DependentUpon>

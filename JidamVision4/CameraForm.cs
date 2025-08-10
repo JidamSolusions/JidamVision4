@@ -22,12 +22,21 @@ namespace JidamVision4
     //public partial class CameraForm: Form
     public partial class CameraForm : DockContent
     {
+        //#18_IMAGE_CHANNEL#3 현재 선택된 이미지 채널을 저장하는 변수
+        //_currentImageChannel 변수 모두 찾아서, 관련 코드 수정할것
+        eImageChannel _currentImageChannel = eImageChannel.Gray;
+
         public CameraForm()
         {
             InitializeComponent();
 
+            this.FormClosed += CameraForm_FormClosed;
+
             //#10_INSPWINDOW#23 ImageViewCtrl에서 발생하는 이벤트 처리
             imageViewer.DiagramEntityEvent += ImageViewer_DiagramEntityEvent;
+
+            //#18_IMAGE_CHANNEL#1 메인툴바 이벤트 처리
+            mainViewToolbar.ButtonChanged += Toolbar_ButtonChanged;
         }
 
         private void ImageViewer_DiagramEntityEvent(object sender, DiagramEntityEventArgs e)
@@ -78,13 +87,15 @@ namespace JidamVision4
 
         public Mat GetDisplayImage()
         {
-            return Global.Inst.InspStage.ImageSpace.GetMat();
+            return Global.Inst.InspStage.ImageSpace.GetMat(0, _currentImageChannel);
         }
 
         private void CameraForm_Resize(object sender, EventArgs e)
         {
+            //#18_IMAGE_CHANNEL#4 메인툴바 너비를 제외하고 이미지 뷰어의 크기를 조정
+
             int margin = 0;
-            imageViewer.Width = this.Width - margin * 2;
+            imageViewer.Width = this.Width - mainViewToolbar.Width - margin * 2;
             imageViewer.Height = this.Height - margin * 2;
 
             imageViewer.Location = new System.Drawing.Point(margin, margin);
@@ -95,18 +106,13 @@ namespace JidamVision4
             if (bitmap == null)
             {
                 //#6_INSP_STAGE#3 업데이트시 bitmap이 없다면 InspSpace에서 가져온다
-                bitmap = Global.Inst.InspStage.GetBitmap(0);
+                bitmap = Global.Inst.InspStage.GetBitmap(0, _currentImageChannel);
                 if (bitmap == null)
                     return;
             }
 
             if (imageViewer != null)
                 imageViewer.LoadBitmap(bitmap);
-
-            //#7_BINARY_PREVIEW#10 현재 선택된 이미지로 Previwe이미지 갱신
-            //이진화 프리뷰에서 각 채널별로 설정이 적용되도록, 현재 이미지를 프리뷰 클래스 설정            
-            Mat curImage = Global.Inst.InspStage.GetMat();
-            Global.Inst.InspStage.PreView.SetImage(curImage);
         }
 
         public void UpdateImageViewer()
@@ -194,5 +200,55 @@ namespace JidamVision4
             imageViewer.WorkingState = state;
             imageViewer.Invalidate();
         }
+        
+        //#18_IMAGE_CHANNEL#2 메인툴바의 버튼 이벤트를 처리하는 함수
+        private void Toolbar_ButtonChanged(object sender, ToolbarEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case ToolbarButton.ShowROI:
+                    if (e.IsChecked)
+                        UpdateDiagramEntity();
+                    else
+                        imageViewer.ResetEntity();
+                    break;
+                case ToolbarButton.ChannelColor:
+                    _currentImageChannel = eImageChannel.Color;
+                    UpdateDisplay();
+                    break;
+                case ToolbarButton.ChannelGray:
+                    _currentImageChannel = eImageChannel.Gray;
+                    UpdateDisplay();
+                    break;
+                case ToolbarButton.ChannelRed:
+                    _currentImageChannel = eImageChannel.Red;
+                    UpdateDisplay();
+                    break;
+                case ToolbarButton.ChannelGreen:
+                    _currentImageChannel = eImageChannel.Green;
+                    UpdateDisplay();
+                    break;
+                case ToolbarButton.ChannelBlue:
+                    _currentImageChannel = eImageChannel.Blue;
+                    UpdateDisplay();
+                    break;
+            }
+        }
+
+        public void SetImageChannel(eImageChannel channel)
+        {
+            mainViewToolbar.SetSelectButton(channel);
+            UpdateDisplay();
+        }
+
+        private void CameraForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mainViewToolbar.ButtonChanged -= Toolbar_ButtonChanged;
+
+            imageViewer.DiagramEntityEvent -= ImageViewer_DiagramEntityEvent;
+
+            this.FormClosed -= CameraForm_FormClosed;
+        }
+
     }
 }
