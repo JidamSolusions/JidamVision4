@@ -17,6 +17,7 @@ using JidamVision4.Inspect;
 using JidamVision4.Util;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using JidamVision4.Sequence;
 
 namespace JidamVision4.Core
 {
@@ -59,7 +60,6 @@ namespace JidamVision4.Core
         private Model _model = null;
 
         private InspWindow _selectedInspWindow = null;
-
 
         //#15_INSP_WORKER#5 InspWorker 클래스 선언
         private InspWorker _inspWorker = null;
@@ -117,7 +117,6 @@ namespace JidamVision4.Core
         public int SelBufferIndex { get; set; } = 0;
         public eImageChannel SelImageChannel { get; set; } = eImageChannel.Gray;
 
-
         public bool Initialize()
         {
             SLogger.Write("InspStage 초기화!");
@@ -157,6 +156,10 @@ namespace JidamVision4.Core
 
                 InitModelGrab(MAX_GRAB_BUF);
             }
+
+            //#19_VISION_SEQUENCE#3 VisionSequence 초기화
+            VisionSequence.Inst.InitSequence();
+            VisionSequence.Inst.SeqCommand += SeqCommand;
 
             //#16_LAST_MODELOPEN#5 마지막 모델 열기 여부 확인
             if (!LastestModelOpen())
@@ -701,6 +704,9 @@ namespace JidamVision4.Core
             if (_inspWorker != null)
                 _inspWorker.Stop();
 
+            //#19_VISION_SEQUENCE#4 시퀀스 정지
+            VisionSequence.Inst.StopAutoRun();
+
             SetWorkingState(WorkingState.NONE);
         }
 
@@ -721,6 +727,64 @@ namespace JidamVision4.Core
 
             return true;
         }
+
+        //#19_VISION_SEQUENCE#7 시퀀스 명령 처리
+        private void SeqCommand(object sender, SeqCmd seqCmd, object Param)
+        {
+            switch (seqCmd)
+            {
+                case SeqCmd.InspStart:
+                    {
+                        //#WCF_FSM#5 카메라 촬상 후, 검사 진행
+                        SLogger.Write("MMI : InspStart", SLogger.LogType.Info);
+
+                        //검사 시작
+                        string errMsg;
+
+                        if (UseCamera)
+                        {
+                            if (!Grab(0))
+                            {
+                                errMsg = string.Format("Failed to grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
+                        else
+                        {
+                            if (!VirtualGrab())
+                            {
+                                errMsg = string.Format("Failed to virtual grab");
+                                SLogger.Write(errMsg, SLogger.LogType.Error);
+                            }
+                        }
+
+                        bool isDefect = false;
+                        if (!_inspWorker.RunInspect(out isDefect))
+                        {
+                            errMsg = string.Format("Failed to inspect");
+                            SLogger.Write(errMsg, SLogger.LogType.Error);
+                        }
+                        
+                        //#WCF_FSM#6 비젼 -> 제어에 검사 완료 및 결과 전송
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, isDefect);
+                    }
+                    break;
+                case SeqCmd.InspEnd:
+                    {
+                        SLogger.Write("MMI : InspEnd", SLogger.LogType.Info);
+
+                        //모든 검사 종료
+                        string errMsg = "";
+
+                        //검사 완료에 대한 처리
+                        SLogger.Write("검사 종료");
+
+                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspEnd, errMsg);
+                    }
+                    break;
+            }
+        }
+
 
         //검사를 위한 준비 작업
         public bool InspectReady(string lotNumber, string serialID)
@@ -755,6 +819,9 @@ namespace JidamVision4.Core
 
             SetWorkingState(WorkingState.INSPECT);
 
+            //#19_VISION_SEQUENCE#5 자동검사 시작
+            string modelName = Path.GetFileNameWithoutExtension(modelPath);
+            VisionSequence.Inst.StartAutoRun(modelName);
             return true;
         }
 
@@ -780,6 +847,10 @@ namespace JidamVision4.Core
                 if (disposing)
                 {
                     // Dispose managed resources.
+
+                    //#19_VISION_SEQUENCE#6 시퀀스 이벤트 해제
+                    VisionSequence.Inst.SeqCommand -= SeqCommand;
+
                     if (_saigeAI != null)
                     {
                         _saigeAI.Dispose();
@@ -796,7 +867,6 @@ namespace JidamVision4.Core
                 }
 
                 // Dispose unmanaged managed resources.
-
                 disposed = true;
             }
         }
