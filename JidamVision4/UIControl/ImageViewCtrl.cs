@@ -1050,7 +1050,7 @@ namespace JidamVision4.UIControl
         {
             lock (_lock)
             {
-                _rectInfos.AddRange(rectInfos);
+                _rectInfos = rectInfos;
                 Invalidate();
             }
         }
@@ -1144,7 +1144,9 @@ namespace JidamVision4.UIControl
         {
             lock (_lock)
             {
+                _diagramEntityList.Clear();
                 _rectInfos.Clear();
+                _selEntity = null;
             }
             Invalidate();
         }
