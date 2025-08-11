@@ -49,7 +49,7 @@ namespace JidamVision4.Core
         //#5_CAMERA_INTERFACE#4 Dispose도 GrabModel에서 상속받아 사용
         //private HikRobotCam _grabManager = null;
         private GrabModel _grabManager = null;
-        private CameraType _camType = CameraType.nONE;
+        private CameraType _camType = CameraType.None;
 
         SaigeAI _saigeAI; // SaigeAI 인스턴스
 
