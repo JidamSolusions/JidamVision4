@@ -79,6 +79,8 @@ namespace JidamVision4.Teach
             if (model == null)
                 return null;
 
+            ModelPath = path;
+
             foreach (var window in model.InspWindowList)
             {
                 window.LoadInspWindow(model);
