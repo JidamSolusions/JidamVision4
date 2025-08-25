@@ -119,6 +119,8 @@ namespace JidamVision4.Core
 
         public bool Initialize()
         {
+            LoadSetting();
+
             SLogger.Write("InspStage 초기화!");
             _imageSpace = new ImageSpace();
 
@@ -134,6 +136,8 @@ namespace JidamVision4.Core
 
             //#10_INSPWINDOW#10 모델 인스턴스 생성
             _model = new Model();
+
+            LoadSetting();
 
             switch (_camType)
             {

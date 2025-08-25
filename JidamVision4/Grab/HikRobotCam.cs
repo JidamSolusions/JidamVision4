@@ -50,7 +50,7 @@ namespace JidamVision4.Grab
                 {
                     IImage inputImage = frameOut.Image;
                     IImage outImage;
-                    MvGvspPixelType dstPixelType = MvGvspPixelType.PixelType_Gvsp_RGB8_Packed;
+                    MvGvspPixelType dstPixelType = MvGvspPixelType.PixelType_Gvsp_BGR8_Packed;
 
                     // Pixel type convert 
                     int result = _device.PixelTypeConverter.ConvertPixelType(inputImage, out outImage, dstPixelType);
