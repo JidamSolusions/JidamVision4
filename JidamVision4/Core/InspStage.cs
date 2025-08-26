@@ -802,6 +802,7 @@ namespace JidamVision4.Core
                                 SLogger.Write(errMsg, SLogger.LogType.Error);
                             }
                         }
+                        ResetDisplay();
 
                         bool isDefect = false;
                         if (!_inspWorker.RunInspect(out isDefect))
