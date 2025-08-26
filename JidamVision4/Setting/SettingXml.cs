@@ -104,6 +104,8 @@ namespace JidamVision4.Setting
 
         public CameraType CamType { get; set; } = CameraType.WebCam;
 
+        public long ExposureTime { get; set; } = 15000; //단위: us
+
         //#15_INSP_WORKER#1 연속 검사 모드
         public bool CycleMode { get; set; } = false;
 

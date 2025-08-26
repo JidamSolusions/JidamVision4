@@ -75,6 +75,12 @@ namespace JidamVision4.Core
 
         public bool UseCamera { get; set; } = false;
 
+        public bool SaveCamImage { get; set; } = false;
+        public int SaveImageIndex { get; set; } = 0;
+
+        private string _capturePath = "";
+
+
         private string _lotNumber;
         private string _serialID;
 
@@ -511,6 +517,18 @@ namespace JidamVision4.Core
 
             _imageSpace.Split(bufferIndex);
 
+            if (SaveCamImage && Directory.Exists(_capturePath))
+            {
+                Mat curImage = GetMat(0, eImageChannel.Color);
+
+                if (curImage != null)
+                {
+                    string imageName = $"{++SaveImageIndex:D4}.png";
+                    string savePath = Path.Combine(_capturePath, imageName);
+                    curImage.SaveImage(savePath);
+                }
+            }
+
             DisplayGrabImage(bufferIndex);
 
             //#8_LIVE#2 LIVE 모드일때, Grab을 계속 실행하여, 반복되도록 구현
@@ -832,6 +850,32 @@ namespace JidamVision4.Core
         public bool StartAutoRun()
         {
             SLogger.Write("Action : StartAutoRun");
+            
+            if (SaveCamImage && _model != null)
+            {
+                SaveImageIndex = 0;
+
+                _capturePath = Path.Combine(Path.GetDirectoryName(_model.ModelPath), "Capture");
+                if (!Directory.Exists(_capturePath))
+                {
+                    Directory.CreateDirectory(_capturePath);
+                }
+                else
+                {
+                    string[] files = Directory.GetFiles(_capturePath);
+                    foreach (string file in files)
+                    {
+                        try
+                        {
+                            File.Delete(file);
+                        }
+                        catch (Exception ex)
+                        {
+                            SLogger.Write($"Failed to delete file: {file}. Exception: {ex.Message}", SLogger.LogType.Error);
+                        }
+                    }
+                }
+            }
 
             string modelPath = CurModel.ModelPath;
             if (modelPath == "")
@@ -859,6 +903,14 @@ namespace JidamVision4.Core
             if (cameraForm != null)
             {
                 cameraForm.SetWorkingState(workingState);
+            }
+        }
+
+        public void SetExposure(long exposureTime)
+        {
+            if (_grabManager != null)
+            {
+                _grabManager.SetExposureTime(exposureTime);
             }
         }
 

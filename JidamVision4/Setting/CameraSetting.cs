@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JidamVision4.Grab;
 using JidamVision4.Util;
+using JidamVision4.Core;
 
 namespace JidamVision4.Setting
 {
@@ -43,14 +44,31 @@ namespace JidamVision4.Setting
 
             //환경설정에서 현재 카메라 타입 얻기
             cbCameraType.SelectedIndex = (int)SettingXml.Inst.CamType;
+
+            long exposureTime = SettingXml.Inst.ExposureTime;
+
+            long expTime = 10000;
+            if (exposureTime > 1000)
+                expTime = exposureTime / 1000;
+
+            tbExposure.Text = expTime.ToString();
         }
 
         private void SaveSetting()
         {
             //환경설정에 카메라 타입 설정
             SettingXml.Inst.CamType = (CameraType)cbCameraType.SelectedIndex;
+
+            long.TryParse(tbExposure.Text, out long expTime);
+            SettingXml.Inst.ExposureTime = expTime * 1000; //ms → us
             //환경설정 저장
             SettingXml.Save();
+
+            if (SettingXml.Inst.CamType != CameraType.None)
+            {
+                //카메라 재연결
+                Global.Inst.InspStage.SetExposure(SettingXml.Inst.ExposureTime);
+            }
 
             SLogger.Write($"카메라 설정 저장");
         }
