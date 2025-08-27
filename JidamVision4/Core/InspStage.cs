@@ -80,9 +80,10 @@ namespace JidamVision4.Core
 
         private string _capturePath = "";
 
-
         private string _lotNumber;
         private string _serialID;
+
+        private bool _isInspectMode = false;
 
         public InspStage() { }
         public ImageSpace ImageSpace
@@ -539,6 +540,9 @@ namespace JidamVision4.Core
                 await Task.Delay(100);  // 비동기 대기
                 _grabManager.Grab(bufferIndex, true);  // 다음 촬영 시작
             }
+
+            if (_isInspectMode)
+                RunInspect();
         }
 
         private void DisplayGrabImage(int bufferIndex)
@@ -751,6 +755,7 @@ namespace JidamVision4.Core
 
             //#19_VISION_SEQUENCE#4 시퀀스 정지
             VisionSequence.Inst.StopAutoRun();
+            _isInspectMode = false;
 
             SetWorkingState(WorkingState.NONE);
         }
@@ -801,18 +806,7 @@ namespace JidamVision4.Core
                                 errMsg = string.Format("Failed to virtual grab");
                                 SLogger.Write(errMsg, SLogger.LogType.Error);
                             }
-                        }
-                        ResetDisplay();
-
-                        bool isDefect = false;
-                        if (!_inspWorker.RunInspect(out isDefect))
-                        {
-                            errMsg = string.Format("Failed to inspect");
-                            SLogger.Write(errMsg, SLogger.LogType.Error);
-                        }
-                        
-                        //#WCF_FSM#6 비젼 -> 제어에 검사 완료 및 결과 전송
-                        VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, isDefect);
+                        }                        
                     }
                     break;
                 case SeqCmd.InspEnd:
@@ -829,6 +823,21 @@ namespace JidamVision4.Core
                     }
                     break;
             }
+        }
+
+        private void RunInspect()
+        {
+            ResetDisplay();
+
+            bool isDefect = false;
+            if (!_inspWorker.RunInspect(out isDefect))
+            {
+                string errMsg = string.Format("Failed to inspect");
+                SLogger.Write(errMsg, SLogger.LogType.Error);
+            }
+
+            //#WCF_FSM#6 비젼 -> 제어에 검사 완료 및 결과 전송
+            VisionSequence.Inst.VisionCommand(Vision2Mmi.InspDone, isDefect);
         }
 
 
@@ -894,6 +903,7 @@ namespace JidamVision4.Core
             //#19_VISION_SEQUENCE#5 자동검사 시작
             string modelName = Path.GetFileNameWithoutExtension(modelPath);
             VisionSequence.Inst.StartAutoRun(modelName);
+            _isInspectMode = true;
             return true;
         }
 
