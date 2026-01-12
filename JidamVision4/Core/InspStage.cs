@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace JidamVision4.Core
 {
@@ -143,6 +144,54 @@ namespace JidamVision4.Core
             //_grabManager.SetExposureTime(25000);
         }
 
+        //#11_MATCHING#10 카메라 촬상 이미지와 파일 이미지 로딩시, 
+        //크기가 다를때, 이미지 버퍼를 다시 설정한 후, 이미지 로딩하는 함수
+        public void SetImageBuffer(string filePath)
+        {
+            Mat matImage = Cv2.ImRead(filePath);
+
+            int pixelBpp = 8;
+            int imageWidth;
+            int imageHeight;
+            int imageStride;
+
+            if (matImage.Type() == MatType.CV_8UC3)
+                pixelBpp = 24;
+
+            imageWidth = (matImage.Width + 3) / 4 * 4;
+            imageHeight = matImage.Height;
+
+            // 4바이트 정렬된 새로운 Mat 생성
+            Mat alignedMat = new Mat();
+            Cv2.CopyMakeBorder(matImage, alignedMat, 0, 0, 0, imageWidth - matImage.Width, BorderTypes.Constant, Scalar.Black);
+
+            imageStride = imageWidth * matImage.ElemSize();
+
+            if (_imageSpace != null)
+            {
+                if (_imageSpace.ImageSize.Width != imageWidth || _imageSpace.ImageSize.Height != imageHeight)
+                {
+                    _imageSpace.SetImageInfo(pixelBpp, imageWidth, imageHeight, imageStride);
+                    SetBuffer(_imageSpace.BufferCount);
+                }
+            }
+
+            int bufferIndex = 0;
+
+            // Mat의 데이터를 byte 배열로 복사
+            int bufSize = (int)(alignedMat.Total() * alignedMat.ElemSize());
+            Marshal.Copy(alignedMat.Data, ImageSpace.GetInspectionBuffer(bufferIndex), 0, bufSize);
+
+            _imageSpace.Split(bufferIndex);
+
+            DisplayGrabImage(bufferIndex);
+
+            if (_previewImage != null)
+            {
+                Bitmap bitmap = ImageSpace.GetBitmap(0);
+                _previewImage.SetImage(BitmapConverter.ToMat(bitmap));
+            }
+        }
 
         //#10_INSPWINDOW#11 속성창 업데이트 기준을 알고리즘에서 InspWindow로 변경
         private void UpdateProperty(InspWindow inspWindow)
@@ -218,24 +267,23 @@ namespace JidamVision4.Core
             }
         }
 
+        //#11_MATCHING#11 버퍼 재설정시, 항상 설정 되도록 수정
         public void SetBuffer(int bufferCount)
         {
-            if (_grabManager == null)
-                return;
-
-            if (_imageSpace.BufferCount == bufferCount)
-                return;
-
             _imageSpace.InitImageSpace(bufferCount);
-            _grabManager.InitBuffer(bufferCount);
 
-            for (int i = 0; i < bufferCount; i++)
+            if (_grabManager != null)
             {
-                _grabManager.SetBuffer(
-                    _imageSpace.GetInspectionBuffer(i),
-                    _imageSpace.GetnspectionBufferPtr(i),
-                    _imageSpace.GetInspectionBufferHandle(i),
-                    i);
+                _grabManager.InitBuffer(bufferCount);
+
+                for (int i = 0; i < bufferCount; i++)
+                {
+                    _grabManager.SetBuffer(
+                        _imageSpace.GetInspectionBuffer(i),
+                        _imageSpace.GetnspectionBufferPtr(i),
+                        _imageSpace.GetInspectionBufferHandle(i),
+                        i);
+                }
             }
         }
 
@@ -275,17 +323,6 @@ namespace JidamVision4.Core
 
                             Mat srcImage = Global.Inst.InspStage.GetMat();
                             blobAlgo.SetInspData(srcImage);
-
-                            if(blobAlgo.DoInspect())
-                            {
-                                List<DrawInspectInfo> resultArea = new List<DrawInspectInfo>();
-                                int resultCnt = blobAlgo.GetResultRect(out resultArea);
-                                if (resultCnt > 0)
-                                {
-                                    totalArea.AddRange(resultArea);
-                                }
-                            }
-
                             break;
                         }
                 }

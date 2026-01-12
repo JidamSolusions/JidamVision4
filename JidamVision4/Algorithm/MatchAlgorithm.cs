@@ -15,7 +15,7 @@ namespace JidamVision4.Algorithm
     1) MatchAlgorithm 클래스 생성 및 구현, InspAlgorithm 상속 받기
     2) UIControl / PatternImageEditor 클래스 구현 - 템플릿 이미지 편집을 위한 컨트롤
     3) Propety / MatchInspProp UserControl 생성 - 템플릿 매칭 속성 편집을 위한 컨트롤
-    4) #11_MATCHING#1 ~ 9 구현
+    4) #11_MATCHING#1 ~ 12 구현
     */
 
     public class MatchAlgorithm : InspAlgorithm

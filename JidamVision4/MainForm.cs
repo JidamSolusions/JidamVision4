@@ -105,7 +105,10 @@ namespace JidamVision4
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     string filePath = openFileDialog.FileName;
-                    cameraForm.LoadImage(filePath);
+
+                    //#11_MATCHING#12 이미지 로딩함수 변경
+                    Global.Inst.InspStage.SetImageBuffer(filePath);
+                    Global.Inst.InspStage.CurModel.InspectImagePath = filePath;
                 }
             }
         }
