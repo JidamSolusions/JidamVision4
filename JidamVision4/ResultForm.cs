@@ -54,8 +54,18 @@ namespace JidamVision4
             };
             _treeListView.SelectionChanged += TreeListView_SelectionChanged;
 
-            _treeListView.CanExpandGetter = x => true;
+            // 1. 모든 노드는 일단 확장 가능하다고 표시
+            _treeListView.CanExpandGetter = x =>
+            {
+                // InspWindow 타입이고 자식 리스트가 비어있지 않을 때만 확장 버튼 표시
+                if (x is InspWindow w)
+                    return w.InspResultList != null && w.InspResultList.Count > 0;
 
+                // InspResult는 더 이상 확장할 자식이 없으므로 false
+                return false;
+            };
+
+            // 2. 실제로 확장을 눌렀을 때 보여줄 데이터 정의
             _treeListView.ChildrenGetter = x =>
             {
                 if (x is InspWindow w)
