@@ -20,7 +20,7 @@ namespace JidamVision4.Inspect
     2) InspWorker 클래스 생성 - 검사 관리 클래스
     3) ImageFileSorter 클래스 추가 - 이미지 파일을 이름에 따라 정렬하는 클래스
     4) ImageLoader 클래스 추가 - 선택 폴더에 있는 이미지 파일 리스트 관리 클래스
-    5) 
+    5) #15_INSP_WORKER#1~
    */
 
     //검사 관련 처리 클래스
