@@ -1145,6 +1145,9 @@ namespace JidamVision4.UIControl
             lock (_lock)
             {
                 _rectInfos.Clear();
+                _diagramEntityList.Clear();
+                _multiSelectedEntities.Clear();
+                _selEntity = null;
             }
             Invalidate();
         }
