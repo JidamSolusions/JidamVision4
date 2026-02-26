@@ -77,24 +77,5 @@ namespace JidamVision4
             return findForm;
         }
 
-        //#3_CAMERAVIEW_PROPERTY#2 풀다운 메뉴에서 이미지 열기 기능 구현
-        private void imageOpenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            CameraForm cameraForm = GetDockForm<CameraForm>();
-            if (cameraForm is null)
-                return;
-
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.Title = "이미지 파일 선택";
-                openFileDialog.Filter = "Image Files|*.bmp;*.jpg;*.jpeg;*.png;*.gif";
-                openFileDialog.Multiselect = false;
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string filePath = openFileDialog.FileName;
-                    cameraForm.LoadImage(filePath);
-                }
-            }
-        }
     }
 }

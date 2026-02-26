@@ -21,26 +21,5 @@ namespace JidamVision4
             InitializeComponent();
         }
 
-
-        //#3_CAMERAVIEW_PROPERTY#1 이미지 경로를 받아 PictureBox에 이미지를 로드하는 메서드
-        public void LoadImage(string filePath)
-        {
-            if (File.Exists(filePath) == false)
-                return;
-
-            //#4_IMAGE_VIEWER#6 이미지 뷰어 컨트롤을 사용하여 이미지를 로드
-            //picMainview.Image = Image.FromFile(filePath);
-            Image bitmap = Image.FromFile(filePath);
-            imageViewer.LoadBitmap((Bitmap)bitmap);
-        }
-
-        private void CameraForm_Resize(object sender, EventArgs e)
-        {
-            int margin = 0;
-            imageViewer.Width = this.Width - margin * 2;
-            imageViewer.Height = this.Height - margin * 2;
-
-            imageViewer.Location = new System.Drawing.Point(margin, margin);
-        }
     }
 }

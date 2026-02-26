@@ -59,7 +59,6 @@
             this.imageOpenToolStripMenuItem.Name = "imageOpenToolStripMenuItem";
             this.imageOpenToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.imageOpenToolStripMenuItem.Text = "Image Open";
-            this.imageOpenToolStripMenuItem.Click += new System.EventHandler(this.imageOpenToolStripMenuItem_Click);
             // 
             // imageSaveToolStripMenuItem
             // 
