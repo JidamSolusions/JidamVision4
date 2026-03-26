@@ -1050,7 +1050,7 @@ namespace JidamVision4.UIControl
         {
             lock (_lock)
             {
-                _rectInfos = rectInfos;
+                _rectInfos.AddRange(rectInfos);
                 Invalidate();
             }
         }
